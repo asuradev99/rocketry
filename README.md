@@ -1,4 +1,6 @@
 # CP2-Project
+![Logo](res/logo.png "Logo")
+
 Because I am going to do a Computer Programming Internal Assessment I need to meet with a client first before I decide what my project will be. 
 
 ## Possible Ideas
