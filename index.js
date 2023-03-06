@@ -12,22 +12,28 @@ window.onresize = function() {
   resizeCanvas(w,h);
 }
 let camera;
+let world; 
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   canvas.addEventListener('contextmenu', event => event.preventDefault());
 
   camera = new Camera();
+  world = new World();
+  world.entities.push(new Planet(0, 0, 50000));
 }
 
 function draw() {
-  background(220);
+  background(0);
 
-  camera.update();
-  camera.apply();
 
   // Draw your content here, e.g.
-  rect(100, 100, 50, 50);
+ 
+  
+  camera.update();
+  camera.apply();
+  
+  world.render();
 }
 
 function mousePressed() {

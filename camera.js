@@ -39,7 +39,7 @@ class Camera {
     update() {
       // Interpolate zoom towards targetZoom
       const zoomSpeed = 0.5 * sqrt(this.zoom);
-      this.zoom += (this.targetZoom - this.zoom) * zoomSpeed;
+      this.zoom += (this.targetZoom - this.zoom) ;
     }
   
     apply() {
