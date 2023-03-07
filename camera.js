@@ -26,8 +26,8 @@ class Camera {
       const mouseXWorld = (mouseX - width / 2) / this.zoom + this.camX;
       const mouseYWorld = (mouseY - height / 2) / this.zoom + this.camY;
   
-      this.targetZoom += event.delta * 0.001;
-      this.targetZoom = constrain(this.targetZoom, 0.1, 10);
+      this.targetZoom += event.delta * 0.001 * this.zoom;
+      this.targetZoom = constrain(this.targetZoom, 0.01, 10);
   
       const newMouseXWorld = (mouseX - width / 2) / this.zoom + this.camX;
       const newMouseYWorld = (mouseY - height / 2) / this.zoom + this.camY;
@@ -47,4 +47,5 @@ class Camera {
       scale(this.zoom);
       translate(-this.camX, -this.camY);
     }
+
   }

@@ -3,9 +3,13 @@ class World {
         this.camera = new Camera();
         this.entities = [];
         this.play = true;
-        this.gravitationalConstant = 0.1
+        this.gravitationalConstant = 1;
+        this.ppm = 100;
+        this.deltaT = 0.005;
+
     }
     update() {
+
         if(this.play) {
             this.entities.forEach(function (item, index) {
                 item.update();
