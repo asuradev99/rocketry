@@ -20,7 +20,7 @@ function setup() {
 
   camera = new Camera();
   world = new World();
-  for(var i = 0; i < 1000; i++) {
+  for(var i = 0; i < 1; i++) {
     world.entities.push(new Planet(200,0, 8));
   }
   //world.entities.push(new DynamicEntity(world, 0, 0, 1))
@@ -41,7 +41,7 @@ function draw() {
   world.update();
   pop(); 
   fill(255, 0, 0);
-  text(camera.camX + " " + camera.camY + " " + camera.zoom, 10, 10, 70, 80);
+  text(camera.camX + " s" + camera.camY + " " + camera.zoom, 10, 10, 70, 80);
   text(getFrameRate(), 10, 60, 70, 80);
   
   rect(-5 + w/2, -5 + h/2, 5, 5);
