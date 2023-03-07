@@ -66,6 +66,7 @@ class Planet extends Entity {
         //this.r = 
     }
 
+    
     render() {
         strokeWeight(4);
         stroke(255);

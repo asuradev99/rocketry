@@ -9,14 +9,14 @@ class Camera {
     }
   
     mousePressed() {
-      if (mouseButton === RIGHT) {
+      if (mouseButton === LEFT) {
         this.startX = this.camX + mouseX / this.zoom;
         this.startY = this.camY + mouseY / this.zoom;
       }
     }
   
     mouseDragged() {
-      if (mouseButton === RIGHT) {
+      if (mouseButton === LEFT) {
         this.camX = this.startX - mouseX / this.zoom;
         this.camY = this.startY - mouseY / this.zoom;
       }

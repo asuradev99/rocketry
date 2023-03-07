@@ -20,15 +20,16 @@ function setup() {
 
   camera = new Camera();
   world = new World();
-  world.entities.push(new Planet(20000,0, 8000000));
-
-  world.entities.push(new DynamicEntity(world, 0, 0, 1))
-  world.entities[1].v = createVector(0, 200);
+  for(var i = 0; i < 1000; i++) {
+    world.entities.push(new Planet(200,0, 8));
+  }
+  //world.entities.push(new DynamicEntity(world, 0, 0, 1))
+ // world.entities[1].v = createVector(0, 200);
 }
 
 function draw() {
   background(0);
-
+  
   push();
   // Draw your content here, e.g.
  
@@ -41,7 +42,7 @@ function draw() {
   pop(); 
   fill(255, 0, 0);
   text(camera.camX + " " + camera.camY + " " + camera.zoom, 10, 10, 70, 80);
-
+  text(getFrameRate(), 10, 60, 70, 80);
   
   rect(-5 + w/2, -5 + h/2, 5, 5);
 }
