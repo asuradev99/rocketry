@@ -66,11 +66,11 @@ class Planet extends Entity {
         //this.r = 
     }
 
-    
+
     render() {
-        strokeWeight(4);
-        stroke(255);
-        fill(135, 135, 135)
+       // strokeWeight(4);
+        //stroke(255);
+        //fill(135, 135, 135)
         ellipse(this.p.x, this.p.y, Math.sqrt(this.m), Math.sqrt(this.m));
     }
 }
