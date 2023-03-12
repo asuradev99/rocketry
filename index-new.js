@@ -7,13 +7,14 @@ document.body.appendChild(canvas);
 
 
 var ctx = canvas.getContext('2d');
-var camera = new Camera(ctx, canvas.width, canvas.height);
-var mousePos= 0; 
+var world = new World(ctx);
+
+var mousePos = 0; 
 
 function getMouseWorld(mouseX, mouseY) {
    return {
-      x: ((mouseX - canvas.width / 2)  / camera.zoom) + camera.x,
-      y: ((mouseY - canvas.height / 2) / camera.zoom) + camera.y, 
+      x: ((mouseX - canvas.width / 2)  / world.camera.zoom) + world.camera.x,
+      y: ((mouseY - canvas.height / 2) / world.camera.zoom) + world.camera.y, 
    }
 }
 
@@ -29,12 +30,13 @@ function getMousePos(canvas, evt) {
    };
  }
 
+ let v = new Victor(5, 5);
 
 // animation : always running loop.
 canvas.addEventListener('mousedown', function (event) {
     if(uiState.mousedown == false) {
       mousePos = getMousePos(canvas, event);
-      camera.mouseDown(mousePos.x, mousePos.y);
+      world.camera.mouseDown(mousePos.x, mousePos.y);
     }
     uiState.mousedown = true;
  });
@@ -49,22 +51,31 @@ canvas.addEventListener('mousedown', function (event) {
    mousePos = getMousePos(canvas, event);
 
    if(uiState.mousedown) {
-      camera.mouseDrag(mousePos.x, mousePos.y);
+      world.camera.mouseDrag(mousePos.x, mousePos.y);
    }
  });
 
  window.addEventListener('keydown', function (event) {
    switch(event.key) {
       case "w": 
-         camera.Zoom(mousePos.x, mousePos.y, 1);
+         world.camera.Zoom(mousePos.x, mousePos.y, 1);
          break;
       case "s": 
-         camera.Zoom(mousePos.x, mousePos.y, -1);
+         world.camera.Zoom(mousePos.x, mousePos.y, -1);
          break;
    }
 
-   console.log(camera.zoom);
+   console.log(world.camera.zoom);
  })
+
+
+//setup world
+
+function setup() {
+   world.entities.push(new Planet(ctx, 0, 0, 160000))
+   world.entities.push(new DynamicEntity(ctx, world, -800, -100, 100))
+   world.entities[1].v.y = -100;
+}
 
 
 function animate() {
@@ -72,20 +83,23 @@ function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   
  // x = x + 1;
-  camera.apply()
+  world.camera.apply()
   ctx.fillStyle = "Black";
-
+  ctx.lineWidth = 10 - world.camera.zoom;
   //ctx.translate(-x, -y);
   for(let i = 0; i < 1; i++) {
-      ctx.fillRect(i, i, 100, 100);
+      ctx.fillRect(100 , 100, 10, 10);
   }
-  camera.unapply();
+
+  world.render()
+  world.update()
+  world.camera.unapply();
 
   ctx.fillStyle = "Red";
   ctx.font      = "normal 16pt Arial";
 
-  ctx.fillText( camera.zoom, 10, 26);
-  ctx.fillText( " Camera coords: " + camera.x + " " + camera.y, 10, 46);
+  ctx.fillText( world.camera.zoom, 10, 26);
+  ctx.fillText( " Camera coords: " + world.camera.x + " " + world.camera.y, 10, 46);
   ctx.fillText( " Mouse coords: " + mousePos.x + " " + mousePos.y, 10, 66);
   let worldCoords = getMouseWorld(mousePos.x, mousePos.y);
   ctx.fillText( " World Coords: " + worldCoords.x + " " + worldCoords.y, 10, 86 );
@@ -97,6 +111,6 @@ function animate() {
   requestAnimationFrame(animate);
 
 }
-
+setup()
 animate();
 
