@@ -9,6 +9,18 @@ function drawCircle(ctx, x, y, r) {
     ctx.stroke();
 }
 
+function drawCircleFilled(ctx, x, y, r) {
+
+    // 
+     ctx.beginPath();
+     ctx.arc(x, y, r, 0, 2 * Math.PI);
+     ctx.fill();
+ }
+ 
+
+function massToRad(m) {
+    return Math.sqrt(Math.abs(m))
+}
 
 class Entity {
     constructor(ctx, x, y, _m) {
@@ -36,24 +48,27 @@ class DynamicEntity extends Entity{
         this.world = world;
         this.v = Victor(0,0);
         this.a = Victor(0,0);
+        
     }
     
     update() {
+        this.a = Victor(0,0);
         this.world.entities.forEach(entity => {
             if(entity instanceof Planet) {
-                console.log("found planet")
                 this.a.add(this.calculateAcceleration(entity));
             }
         });
 
         this.v.add(this.a.clone().multiplyScalar(this.world.deltaT));
         this.p.add(this.v.clone().multiplyScalar(this.world.deltaT));
+        this.world.add(new Tracer(this.ctx, this.p.x, this.p.y, 255));
 
     }
 
     calculateAcceleration(b) {
 
         const distance = this.p.distance(b.p);
+
       //  console.log("hello")
         const disp = b.p.clone().subtract(this.p).normalize();
         // Universal gravitational constant
@@ -69,7 +84,8 @@ class DynamicEntity extends Entity{
     }
 
     render() {
-        drawCircle(this.ctx, this.p.x, this.p.y, Math.sqrt(this.m))
+        this.ctx.strokeStyle = '#ff0000';
+        drawCircle(this.ctx, this.p.x, this.p.y, massToRad(this.m))
     }
 }
 
@@ -84,11 +100,30 @@ class Planet extends Entity {
        // strokeWeight(4);
         //stroke(255);
         //fill(135, 135, 135)
+        this.ctx.strokeStyle = '#000000';
 
-        drawCircle(this.ctx, this.p.x, this.p.y, Math.sqrt(this.m));
+        drawCircle(this.ctx, this.p.x, this.p.y, massToRad(this.m));
     }
 }
 
+class Tracer extends Entity {
+    constructor(ctx, x, y, l) {
+        super(ctx, x, y);
+        this.l = l;
+        this.lc = 0;
+    }
+    update() {
+        this.lc += 1;
+        if(this.lc == this.l) {
+            return "delete"
+        }
+    }
+    render() {
+        let gradient = 100 + this.lc / this.l * 155; 
+        this.ctx.fillStyle = `rgb(${gradient},${gradient},${gradient} )`;
+        drawCircleFilled(this.ctx, this.p.x, this.p.y, 5);
+    }
+}
 // function drawArrow(base, vec, myColor) {
 //     push()
 //     stroke(myColor);
@@ -106,6 +141,6 @@ class Planet extends Entity {
 
 
 
-// class Rocket extends DynamicEntity {
-//     constructor(x, y)
-// }
+class Rocket extends DynamicEntity {
+    constructor(x, y, m)
+}

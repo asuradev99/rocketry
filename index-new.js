@@ -52,6 +52,9 @@ canvas.addEventListener('mousedown', function (event) {
 
    if(uiState.mousedown) {
       world.camera.mouseDrag(mousePos.x, mousePos.y);
+
+      newx.updateDisplay();
+      newy.updateDisplay();
    }
  });
 
@@ -63,6 +66,15 @@ canvas.addEventListener('mousedown', function (event) {
       case "s": 
          world.camera.Zoom(mousePos.x, mousePos.y, -1);
          break;
+      case "e":
+         world.add(new Planet(ctx, world.newPlanetX, world.newPlanetY, world.newPlanetMass))
+         break;
+      case "r":
+         world.reset()
+         setup()
+
+         break;
+
    }
 
    console.log(world.camera.zoom);
@@ -70,10 +82,27 @@ canvas.addEventListener('mousedown', function (event) {
 
 
 //setup world
+var gui = new dat.GUI({name: 'My GUI'});
+var person = {name: 'Sam'};
+gui.addFolder("Simulation Parameters");
+gui.add(world, 'gravitationalConstant', 10);
+gui.add(world, 'deltaT', 0, 1)
+gui.add(world, 'play')
+gui.show();
+
+gui.addFolder("Planet");
+let newx = gui.add(world, 'newPlanetX');
+let newy = gui.add(world, 'newPlanetY')
+gui.add(world, 'newPlanetMass')
+var obj = { add:function(){
+   world.add(new Planet(ctx, world.newPlanetX, world.newPlanetY, world.newPlanetMass))
+ }};
+
+gui.add(obj,'add');
 
 function setup() {
-   world.entities.push(new Planet(ctx, 0, 0, 160000))
-   world.entities.push(new DynamicEntity(ctx, world, -800, -100, 100))
+   world.add(new Planet(ctx, 0, 0, 160000))
+   world.add(new DynamicEntity(ctx, world, -800, -100, 100))
    world.entities[1].v.y = -100;
 }
 
@@ -85,24 +114,24 @@ function animate() {
  // x = x + 1;
   world.camera.apply()
   ctx.fillStyle = "Black";
-  ctx.lineWidth = 10 - world.camera.zoom;
+  ctx.lineWidth = 9 +  1 / Math.pow(world.camera.zoom, 1.2);
   //ctx.translate(-x, -y);
-  for(let i = 0; i < 1; i++) {
-      ctx.fillRect(100 , 100, 10, 10);
-  }
-
+  
   world.render()
   world.update()
+  //world.deleteMarked()
+  world.updateGui()
+  
   world.camera.unapply();
 
-  ctx.fillStyle = "Red";
-  ctx.font      = "normal 16pt Arial";
+//   ctx.fillStyle = "Red";
+//   ctx.font      = "normal 16pt Arial";
 
-  ctx.fillText( world.camera.zoom, 10, 26);
-  ctx.fillText( " Camera coords: " + world.camera.x + " " + world.camera.y, 10, 46);
-  ctx.fillText( " Mouse coords: " + mousePos.x + " " + mousePos.y, 10, 66);
-  let worldCoords = getMouseWorld(mousePos.x, mousePos.y);
-  ctx.fillText( " World Coords: " + worldCoords.x + " " + worldCoords.y, 10, 86 );
+//   ctx.fillText( world.camera.zoom, 10, 26);
+//   ctx.fillText( " Camera coords: " + world.camera.x + " " + world.camera.y, 10, 46);
+//   ctx.fillText( " Mouse coords: " + mousePos.x + " " + mousePos.y, 10, 66);
+//   let worldCoords = getMouseWorld(mousePos.x, mousePos.y);
+//   ctx.fillText( " World Coords: " + worldCoords.x + " " + worldCoords.y, 10, 86 );
   ctx.fillRect(canvas.width / 2, canvas.height / 2, 10, 10);
   // clear canvas
   //ctx.rotate(x);
