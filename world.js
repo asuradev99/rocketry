@@ -24,9 +24,13 @@ class World {
                     deleteIndeces.push(index)
                 }
             }, this)
-             deleteIndeces.forEach(function (item, index) {
-                 this.entities.splice(item, item)
-             }, this)
+               ctx.fillStyle = "Red";
+              ctx.font      = "normal 16pt Arial";
+
+              ctx.fillText(deleteIndeces.toString(), 10, 26);
+             for(var i = deleteIndeces.length - 1; i >= 0; i--) {
+                this.entities.splice(deleteIndeces[i],1);
+             }
         }
     }
     updateGui() {

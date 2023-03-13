@@ -61,7 +61,9 @@ class DynamicEntity extends Entity{
 
         this.v.add(this.a.clone().multiplyScalar(this.world.deltaT));
         this.p.add(this.v.clone().multiplyScalar(this.world.deltaT));
-        this.world.add(new Tracer(this.ctx, this.p.x, this.p.y, 255));
+        if(!(this instanceof Rocket)) {
+            this.world.add(new Tracer(this.ctx, this.p.x, this.p.y, 255));
+        }
 
     }
 
@@ -142,5 +144,30 @@ class Tracer extends Entity {
 
 
 class Rocket extends DynamicEntity {
-    constructor(x, y, m)
+    constructor(ctx, world, x, y, m) {
+        super(ctx, world, x, y, m);
+        this.fuelMaxJ = 100000;
+        this.currentFuel = this.fuelMaxJ;
+        this.angle = 0; 
+        console.log(this.world)
+    }
+
+    changeAngle(deltaAngle) {
+        this.angle += deltaAngle;
+    }
+
+    render() {
+        this.ctx.save() 
+        this.ctx.translate(this.p.x, this.p.y);
+        this.ctx.rotate(this.angle * Math.PI / 180);
+        var path=new Path2D();
+        var size = 20;
+        path.moveTo(0 - size / 2, 0 + size );
+        path.lineTo(0 + size / 2, 0 + size );
+        path.lineTo(0, 0 - size / 2);
+        ctx.fill(path);
+        this.ctx.restore();
+        super.render();
+
+    }
 }

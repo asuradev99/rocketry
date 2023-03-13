@@ -8,6 +8,7 @@ document.body.appendChild(canvas);
 
 var ctx = canvas.getContext('2d');
 var world = new World(ctx);
+let player = new Rocket(ctx, world, -800, -100, 100)
 
 var mousePos = 0; 
 
@@ -59,6 +60,7 @@ canvas.addEventListener('mousedown', function (event) {
  });
 
  window.addEventListener('keydown', function (event) {
+   console.log(event)
    switch(event.key) {
       case "w": 
          world.camera.Zoom(mousePos.x, mousePos.y, 1);
@@ -69,14 +71,17 @@ canvas.addEventListener('mousedown', function (event) {
       case "e":
          world.add(new Planet(ctx, world.newPlanetX, world.newPlanetY, world.newPlanetMass))
          break;
-      case "r":
-         world.reset()
-         setup()
-
+      case "ArrowRight":
+         player.changeAngle(10)
+         break;
+      case "ArrowLeft":
+         player.changeAngle(-10)
          break;
 
-   }
+      
 
+   }
+   
    console.log(world.camera.zoom);
  })
 
@@ -95,14 +100,14 @@ let newx = gui.add(world, 'newPlanetX');
 let newy = gui.add(world, 'newPlanetY')
 gui.add(world, 'newPlanetMass')
 var obj = { add:function(){
-   world.add(new Planet(ctx, world.newPlanetX, world.newPlanetY, world.newPlanetMass))
+   world.add(new Planet(ctx, world.newPlanetX, world.newPslanetY, world.newPlanetMass))
  }};
 
 gui.add(obj,'add');
 
 function setup() {
    world.add(new Planet(ctx, 0, 0, 160000))
-   world.add(new DynamicEntity(ctx, world, -800, -100, 100))
+   world.add(player)
    world.entities[1].v.y = -100;
 }
 
