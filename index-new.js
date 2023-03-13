@@ -19,8 +19,17 @@ function getMouseWorld(mouseX, mouseY) {
    }
 }
 
+const keyDir = {
+   none: 0,
+   leftUp: 1,
+   rightDown: 2
+}
+
 const uiState = {
     mousedown: false,
+    rocketDir: keyDir.none, 
+    accelDir: keyDir.none,
+
 }
 
 function getMousePos(canvas, evt) {
@@ -60,7 +69,6 @@ canvas.addEventListener('mousedown', function (event) {
  });
 
  window.addEventListener('keydown', function (event) {
-   console.log(event)
    switch(event.key) {
       case "w": 
          world.camera.Zoom(mousePos.x, mousePos.y, 1);
@@ -72,20 +80,42 @@ canvas.addEventListener('mousedown', function (event) {
          world.add(new Planet(ctx, world.newPlanetX, world.newPlanetY, world.newPlanetMass))
          break;
       case "ArrowRight":
-         player.changeAngle(10)
+         uiState.rocketDir = keyDir.rightDown;
+         //player.changeAngle(10)
          break;
       case "ArrowLeft":
-         player.changeAngle(-10)
+         uiState.rocketDir = keyDir.leftUp;
+        // player.changeAngle(-10)
          break;
-
-      
-
+      case "ArrowUp":
+         uiState.accelDir = keyDir.leftUp;
+         //player.changeAngle(10)
+         break;
+      // case "r":
+      //    world.reset();
+      //    setup();
+      //    break;
    }
    
-   console.log(world.camera.zoom);
  })
 
-
+ window.addEventListener('keyup', function (event) {
+   console.log(event)
+   switch(event.key) {
+      case "ArrowRight":
+         uiState.rocketDir = keyDir.none;
+         //player.changeAngle(10)
+         break;
+      case "ArrowLeft":
+         uiState.rocketDir = keyDir.none;
+        // player.changeAngle(-10)
+         break;
+      case "ArrowUp":
+         uiState.accelDir = keyDir.none; 
+         break;
+   }
+   
+ })
 //setup world
 var gui = new dat.GUI({name: 'My GUI'});
 var person = {name: 'Sam'};
@@ -108,7 +138,7 @@ gui.add(obj,'add');
 function setup() {
    world.add(new Planet(ctx, 0, 0, 160000))
    world.add(player)
-   world.entities[1].v.y = -100;
+   //world.entities[1].v.y = -100;
 }
 
 
@@ -121,18 +151,25 @@ function animate() {
   ctx.fillStyle = "Black";
   ctx.lineWidth = 9 +  1 / Math.pow(world.camera.zoom, 1.2);
   //ctx.translate(-x, -y);
+   if(uiState.accelDir == keyDir.leftUp) {
+      player.applyBooster(10000)
+
+   }
   
+  ctx.fillText(player.a, 10, 26);
+  ctx.fillText(player.v.length(), 10, 36);
   world.render()
   world.update()
   //world.deleteMarked()
   world.updateGui()
   
   world.camera.unapply();
-
-//   ctx.fillStyle = "Red";
-//   ctx.font      = "normal 16pt Arial";
-
-//   ctx.fillText( world.camera.zoom, 10, 26);
+  
+  if(uiState.rocketDir == keyDir.rightDown) {
+      player.changeAngle(3)
+  } else if(uiState.rocketDir == keyDir.leftUp) {
+      player.changeAngle(-3)
+  }
 //   ctx.fillText( " Camera coords: " + world.camera.x + " " + world.camera.y, 10, 46);
 //   ctx.fillText( " Mouse coords: " + mousePos.x + " " + mousePos.y, 10, 66);
 //   let worldCoords = getMouseWorld(mousePos.x, mousePos.y);

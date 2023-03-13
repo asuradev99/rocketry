@@ -6,7 +6,7 @@ class World {
         this.play = true;
         this.gravitationalConstant = 50;
         this.ppm = 100;
-        this.deltaT = 0.01;
+        this.deltaT = 0.02;
 
         //gui variables
         this.newPlanetX = 0;

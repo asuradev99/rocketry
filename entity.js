@@ -52,7 +52,6 @@ class DynamicEntity extends Entity{
     }
     
     update() {
-        this.a = Victor(0,0);
         this.world.entities.forEach(entity => {
             if(entity instanceof Planet) {
                 this.a.add(this.calculateAcceleration(entity));
@@ -61,10 +60,9 @@ class DynamicEntity extends Entity{
 
         this.v.add(this.a.clone().multiplyScalar(this.world.deltaT));
         this.p.add(this.v.clone().multiplyScalar(this.world.deltaT));
-        if(!(this instanceof Rocket)) {
-            this.world.add(new Tracer(this.ctx, this.p.x, this.p.y, 255));
-        }
-
+       // if(!(this instanceof Rocket)) {
+       // }
+        this.a = Victor(0,0);
     }
 
     calculateAcceleration(b) {
@@ -109,20 +107,23 @@ class Planet extends Entity {
 }
 
 class Tracer extends Entity {
-    constructor(ctx, x, y, l) {
+    constructor(ctx, x, y, l, v, dt) {
         super(ctx, x, y);
         this.l = l;
         this.lc = 0;
+        this.v = v; 
+        this.dt = dt;
     }
     update() {
+        this.p.add(this.v.clone().multiplyScalar(this.dt))
         this.lc += 1;
         if(this.lc == this.l) {
             return "delete"
         }
     }
     render() {
-        let gradient = 100 + this.lc / this.l * 155; 
-        this.ctx.fillStyle = `rgb(${gradient},${gradient},${gradient} )`;
+        let gradient = this.lc / this.l * 130; 
+        this.ctx.fillStyle = `rgb(254,${90 + gradient},${gradient / 5} )`;
         drawCircleFilled(this.ctx, this.p.x, this.p.y, 5);
     }
 }
@@ -148,7 +149,8 @@ class Rocket extends DynamicEntity {
         super(ctx, world, x, y, m);
         this.fuelMaxJ = 100000;
         this.currentFuel = this.fuelMaxJ;
-        this.angle = 0; 
+        this.angle = 90; 
+        this.boosterOffset = 20;
         console.log(this.world)
     }
 
@@ -161,13 +163,25 @@ class Rocket extends DynamicEntity {
         this.ctx.translate(this.p.x, this.p.y);
         this.ctx.rotate(this.angle * Math.PI / 180);
         var path=new Path2D();
-        var size = 20;
-        path.moveTo(0 - size / 2, 0 + size );
-        path.lineTo(0 + size / 2, 0 + size );
-        path.lineTo(0, 0 - size / 2);
+       // var this.boosterOffset = 20;
+        path.moveTo( 0 - this.boosterOffset, 0 - this.boosterOffset / 2 );
+        path.lineTo( 0 -  this.boosterOffset, 0 + this.boosterOffset / 2 );
+        path.lineTo( 0 + this.boosterOffset / 2, 0);
         ctx.fill(path);
         this.ctx.restore();
         super.render();
+
+    }
+    applyForce(F) {
+        this.a.add(F.divideScalar(this.m))
+    }
+
+    applyBooster(M) {
+        let f = new Victor(M * Math.cos(this.angle * Math.PI / 180), M * Math.sin(this.angle * Math.PI / 180));
+        this.applyForce(f)
+        let rand = new Victor((Math.random() * 2 - 1) * 30, (Math.random() * 2 - 1) * 30);
+        
+        this.world.add(new Tracer(this.ctx, this.p.x, this.p.y, 25, this.v.clone().add(f.multiplyScalar(-1)).add(rand), this.world.deltaT));
 
     }
 }
