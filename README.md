@@ -4,12 +4,7 @@
 Because I am going to do a Computer Programming Internal Assessment I need to meet with a client first before I decide what my project will be. 
 
 ## Possible Ideas
-### Physics simulator 
-- this could be used to assist another science teacher's lessons. 
-### Business Website 
-- this could be to help one of my family's friends with a non-profit organization they run.
-### Cellular Automata Simulator
-- an idea I've been interested in for awhile, but is not likely to be wanted by a client.
-### An Educational videogame
-- Perhaps an educational videogame that teaches people math, english, etc.?
-
+-- Player can increase their velocity and modify their angle when the game is paused (this allows for very precise maneuvers, facilitating the use of calculation)
+-- physical "checkpoints" or areas that the players must enter  in order to win the level
+-- Planets have atmospheres with friction 
+-- 
