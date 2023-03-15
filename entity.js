@@ -59,7 +59,7 @@ class DynamicEntity extends Entity{
         });
 
         this.v.add(this.a.clone().multiplyScalar(this.world.deltaT));
-        this.p.add(this.v.clone().multiplyScalar(this.world.deltaT));
+        this.p.add(this.v.clone().multiplyScalar(this.world.deltaT / 2));
        // if(!(this instanceof Rocket)) {
        // }
         this.a = Victor(0,0);
@@ -147,8 +147,9 @@ class Tracer extends Entity {
 class Rocket extends DynamicEntity {
     constructor(ctx, world, x, y, m) {
         super(ctx, world, x, y, m);
-        this.fuelMaxJ = 100000;
+        this.fuelMaxJ = 1000000;
         this.currentFuel = this.fuelMaxJ;
+        this.fuelVel = 0;
         this.angle = 90; 
         this.boosterOffset = 20;
         console.log(this.world)
@@ -177,11 +178,25 @@ class Rocket extends DynamicEntity {
     }
 
     applyBooster(M) {
-        let f = new Victor(M * Math.cos(this.angle * Math.PI / 180), M * Math.sin(this.angle * Math.PI / 180));
+        let mag = M;
+        let fuelUsed = M * ( (this.fuelVel * this.world.deltaT) +  M  / (2 * this.m)  * Math.pow(this.world.deltaT, 2))
+        if(this.currentFuel >= fuelUsed) {
+            this.currentFuel -= fuelUsed; 
+            this.fuelVel += (M / this.m) * this.world.deltaT;
+        } else {
+            console.log(this.currentFuel + " " + fuelUsed);
+            mag = ((this.currentFuel / fuelUsed)) * M; 
+
+            this.currentFuel = 0; 
+            this.fuelVel = 0;
+        }
+
+        let f = new Victor(mag * Math.cos(this.angle * Math.PI / 180), mag * Math.sin(this.angle * Math.PI / 180));
+
+
         this.applyForce(f)
         let rand = new Victor((Math.random() * 2 - 1) * 30, (Math.random() * 2 - 1) * 30);
         
         this.world.add(new Tracer(this.ctx, this.p.x, this.p.y, 25, this.v.clone().add(f.multiplyScalar(-1)).add(rand), this.world.deltaT));
-
     }
 }

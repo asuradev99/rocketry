@@ -4,7 +4,7 @@ class World {
         this.camera = new Camera(ctx, window.innerWidth, window.innerHeight);
         this.entities = [];
         this.play = true;
-        this.gravitationalConstant = 50;
+        this.gravitationalConstant = 0;
         this.ppm = 100;
         this.deltaT = 0.02;
 

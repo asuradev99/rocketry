@@ -112,6 +112,7 @@ canvas.addEventListener('mousedown', function (event) {
          break;
       case "ArrowUp":
          uiState.accelDir = keyDir.none; 
+         player.fuelVel = 0;
          break;
    }
    
@@ -151,13 +152,14 @@ function animate() {
   ctx.fillStyle = "Black";
   ctx.lineWidth = 9 +  1 / Math.pow(world.camera.zoom, 1.2);
   //ctx.translate(-x, -y);
-   if(uiState.accelDir == keyDir.leftUp) {
+   if(uiState.accelDir == keyDir.leftUp && player.currentFuel > 0) {
       player.applyBooster(10000)
 
    }
   
   ctx.fillText(player.a, 10, 26);
-  ctx.fillText(player.v.length(), 10, 36);
+  ctx.fillText(player.currentFuel, 10, 36);
+  ctx.fillText(player.v.length(), 10, 46);
   world.render()
   world.update()
   //world.deleteMarked()
