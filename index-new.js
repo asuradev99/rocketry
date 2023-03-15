@@ -130,14 +130,24 @@ gui.addFolder("Planet");
 let newx = gui.add(world, 'newPlanetX');
 let newy = gui.add(world, 'newPlanetY')
 gui.add(world, 'newPlanetMass')
+
 var obj = { add:function(){
    world.add(new Planet(ctx, world.newPlanetX, world.newPslanetY, world.newPlanetMass))
  }};
 
 gui.add(obj,'add');
 
+gui.addFolder("Camera");
+let camerax = gui.add(world.camera, 'x');
+let cameray = gui.add(world.camera, 'y')
+
+var cameraLock = { add:function(){
+   world.add(new Planet(ctx, world.newPlanetX, world.newPslanetY, world.newPlanetMass))
+ }};
+
+gui.add(obj,'add');
 function setup() {
-   world.add(new Planet(ctx, 0, 0, 160000))
+   world.add(new Planet(ctx, 1000, 0, 1600000))
    world.add(player)
    //world.entities[1].v.y = -100;
 }
@@ -149,17 +159,22 @@ function animate() {
   
  // x = x + 1;
   world.camera.apply()
+
+  world.camera.x = player.p.x; 
+  world.camera.y = player.p.y;
+
   ctx.fillStyle = "Black";
   ctx.lineWidth = 9 +  1 / Math.pow(world.camera.zoom, 1.2);
   //ctx.translate(-x, -y);
    if(uiState.accelDir == keyDir.leftUp && player.currentFuel > 0) {
-      player.applyBooster(10000)
+      player.applyBooster(50000)
 
    }
   
   ctx.fillText(player.a, 10, 26);
   ctx.fillText(player.currentFuel, 10, 36);
   ctx.fillText(player.v.length(), 10, 46);
+  
   world.render()
   world.update()
   //world.deleteMarked()
@@ -172,11 +187,20 @@ function animate() {
   } else if(uiState.rocketDir == keyDir.leftUp) {
       player.changeAngle(-3)
   }
-//   ctx.fillText( " Camera coords: " + world.camera.x + " " + world.camera.y, 10, 46);
 //   ctx.fillText( " Mouse coords: " + mousePos.x + " " + mousePos.y, 10, 66);
 //   let worldCoords = getMouseWorld(mousePos.x, mousePos.y);
 //   ctx.fillText( " World Coords: " + worldCoords.x + " " + worldCoords.y, 10, 86 );
-  ctx.fillRect(canvas.width / 2, canvas.height / 2, 10, 10);
+  //ctx.fillRect(canvas.width / 2, canvas.height / 2, 10, 10);
+  ctx.fillStyle = "Red"
+  ctx.fillRect(10, 10, player.currentFuel / player.fuelMaxJ * 100, 50)
+  ctx.strokeStyle = '#000000';
+  ctx.lineWidth = 5;
+  ctx.strokeRect(10, 10, 100, 50)
+
+  ctx.fillStyle = "Black"
+  ctx.fillText( " Fuel:  " + player.currentFuel / 1000 + " kJ ", 125, 40);
+
+
   // clear canvas
   //ctx.rotate(x);
 
