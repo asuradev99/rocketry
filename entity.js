@@ -48,18 +48,41 @@ class DynamicEntity extends Entity{
         this.world = world;
         this.v = Victor(0,0);
         this.a = Victor(0,0);
-        
+        this.maxCrashVelocity = 300;
+        this.crashed = false; 
     }
     
     update() {
-        this.world.entities.forEach(entity => {
-            if(entity instanceof Planet) {
-                this.a.add(this.calculateAcceleration(entity));
-            }
-        });
+        let collisionBuffer = new Victor(0, 0);
+        if(this.world.play) {
+
+            this.world.entities.forEach(entity => {
+                if(entity instanceof Planet) {
+                    this.a.add(this.calculateAcceleration(entity));
+                    if(this.p.distance(entity.p) < (massToRad(this.m) + massToRad(entity.m))) {
+                        collisionBuffer.add(entity.p.clone().subtract(this.p).normalize().multiplyScalar( this.p.distance(entity.p) - (massToRad(this.m) + massToRad(entity.m)) ))
+                        let disp = entity.p.clone().subtract(this.p).normalize();
+                        let normalComponent = disp.clone().multiplyScalar(this.v.clone().dot(disp) / (Math.pow(disp.length(), 2)))
+                    
+                        if(this.v.length() > this.maxCrashVelocity) {
+                            this.crashed = true; 
+                        }
+
+                        this.v.subtract(normalComponent);
+                        this.v.multiplyScalar(0.99);
+                    }
+                }
+            });
+        }
 
         let newv = this.v.clone().add(this.a.clone().multiplyScalar(this.world.deltaT));
-        this.p.add(this.v.clone().add(newv).multiplyScalar(this.world.deltaT / 2));
+
+        if(this.world.play) {
+            this.p.add(this.v.clone().add(newv).multiplyScalar(this.world.deltaT / 2));
+        
+            this.p.add(collisionBuffer);
+        }
+        
         this.v = newv;
        // if(!(this instanceof Rocket)) {
        // }
@@ -104,9 +127,11 @@ class Planet extends Entity {
        // strokeWeight(4);
         //stroke(255);
         //fill(135, 135, 135)
-        this.ctx.strokeStyle = '#000000';
-
+        this.ctx.strokeStyle = '#5c5c5c';
         drawCircle(this.ctx, this.p.x, this.p.y, massToRad(this.m));
+        this.ctx.fillStyle = '#bfbfbf';
+
+        drawCircleFilled(this.ctx, this.p.x, this.p.y, massToRad(this.m));
     }
 }
 
@@ -165,6 +190,8 @@ class Rocket extends DynamicEntity {
 
     render() {
         this.ctx.save() 
+
+        this.ctx.fillStyle = '#000000'
         this.ctx.translate(this.p.x, this.p.y);
         this.ctx.rotate(this.angle * Math.PI / 180);
         var path=new Path2D();
@@ -200,7 +227,11 @@ class Rocket extends DynamicEntity {
 
         this.applyForce(f)
         let rand = new Victor((Math.random() * 2 - 1) * 30, (Math.random() * 2 - 1) * 30);
-        
-        this.world.add(new Tracer(this.ctx, this.p.x - this.boosterOffset * Math.cos(this.angle * Math.PI / 180), this.p.y - this.boosterOffset * Math.sin(this.angle * Math.PI / 180), 50, this.v.clone().add(f.multiplyScalar(-1/5).add(rand)), this.world.deltaT));
+        let startingVelocity = this.v.clone().add(f.clone().multiplyScalar(-1/5).add(rand));
+
+        if(this.world.play == false) {
+            startingVelocity = f.clone().multiplyScalar(-1/5).add(rand);
+        }
+        this.world.add(new Tracer(this.ctx, this.p.x - this.boosterOffset * Math.cos(this.angle * Math.PI / 180), this.p.y - this.boosterOffset * Math.sin(this.angle * Math.PI / 180), 50, startingVelocity , this.world.deltaT));
     }
 }
