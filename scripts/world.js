@@ -1,13 +1,19 @@
+const gameModes = {
+    editor: "editor", 
+    rtPlay: "rtPlay",
+    rtPaused: "rtPaused",
+}
+
 class World {
     constructor(ctx) {
         this.ctx = ctx;
         this.camera = new Camera(ctx, window.innerWidth, window.innerHeight);
         this.entities = [];
-        this.play = false;
+        this.play = gameModes.editor;
         this.gravitationalConstant = 100;
         this.ppm = 100;
         this.deltaT = 0.02;
-
+        this.selectedObject = false;
         //gui variables
         this.newPlanetX = 0;
         this.newPlanetY = 0;
@@ -19,7 +25,7 @@ class World {
         let deleteIndeces = [];
        
             this.entities.forEach(function (item, index) {
-                if((item instanceof Tracer || item instanceof DynamicEntity) || this.play) {
+                if((item instanceof Tracer || item instanceof Rocket)  || (this.play != gameModes.editor)) {
                     let status = item.update();
                if(status == "delete") {
                     //this.entities.splice(index, index)
@@ -43,6 +49,23 @@ class World {
     add(a) {
         this.entities.push(a)
     }
+    toggleForces() {
+        this.entities.forEach(function (item, index) {
+            if((item instanceof DynamicEntity || item instanceof Rocket)) {
+                item.showForces = !item.showForces;
+            }
+        }, this)
+    }
+
+    toggleVelocities() {
+        this.entities.forEach(function (item, index) {
+            if((item instanceof DynamicEntity || item instanceof Rocket)) {
+                item.showVelocity = !item.showVelocity;
+            }
+        }, this)
+    }
+
+
     render() {
         //
         this.entities.forEach(function (item, index) {

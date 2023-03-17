@@ -50,11 +50,13 @@ class DynamicEntity extends Entity{
         this.a = Victor(0,0);
         this.maxCrashVelocity = 300;
         this.crashed = false; 
+        this.showForces = false;
+        this.showVelocity = false;
     }
     
     update() {
         let collisionBuffer = new Victor(0, 0);
-        if(this.world.play) {
+        if(this.world.play == gameModes.rtPlay) {
 
             this.world.entities.forEach(entity => {
                 if(entity instanceof Planet) {
@@ -77,7 +79,7 @@ class DynamicEntity extends Entity{
 
         let newv = this.v.clone().add(this.a.clone().multiplyScalar(this.world.deltaT));
 
-        if(this.world.play) {
+        if(this.world.play == gameModes.rtPlay) {
             this.p.add(this.v.clone().add(newv).multiplyScalar(this.world.deltaT / 2));
         
             this.p.add(collisionBuffer);
@@ -101,7 +103,6 @@ class DynamicEntity extends Entity{
         const force = this.world.gravitationalConstant * (b.m / Math.pow(distance, 2));
         
         const acceleration = disp.multiplyScalar(force); 
-        // Calculate the acceleration of object a
         
         //drawArrow(this.p, acceleration, 'blue');
         return acceleration;
@@ -112,7 +113,40 @@ class DynamicEntity extends Entity{
         this.ctx.fillStyle = '#ff0000';
         drawCircle(this.ctx, this.p.x, this.p.y, massToRad(this.m))
         drawCircleFilled(this.ctx, this.p.x, this.p.y, massToRad(this.m))
+        
+        this.ctx.lineWidth = 5; 
+        this.ctx.strokeStyle = '#0000ff';
+        if(this.showForces) {
 
+            this.world.entities.forEach(entity => {
+                if(entity instanceof Planet) {
+                var a = this.calculateAcceleration(entity);
+                                // Calculate the acceleration of object a
+                    this.ctx.beginPath(); // Start a new path
+                    this.ctx.moveTo(this.p.x, this.p.y); // Move the pen to (30, 50)
+                    this.ctx.lineTo(this.p.x + a.x, this.p.y + a.y); // Draw a line to (150, 100)
+                    this.ctx.stroke(); // Render the path
+                    
+                    this.ctx.font = `10px Verdana`;
+
+                    this.ctx.fillText(a.magnitude().toFixed(2), this.p.x + a.x, this.p.y + a.y)
+                }
+                
+            });
+        }
+       
+        if(this.showVelocity) {
+            this.ctx.strokeStyle = '#00ff00';
+
+            ctx.beginPath(); // Start a new path
+            ctx.moveTo(this.p.x, this.p.y); // Move the pen to (30, 50)
+            ctx.lineTo(this.p.x + this.v.x, this.p.y + this.v.y); // Draw a line to (150, 100)
+            ctx.stroke(); // Render the path
+
+            this.ctx.font = `10px Verdana`;
+
+            this.ctx.fillText(this.v.magnitude().toFixed(2), this.p.x + this.v.x, this.p.y + this.v.y)
+        }
     }
 }
 
@@ -223,14 +257,23 @@ class Rocket extends DynamicEntity {
         }
 
         let f = new Victor(mag * Math.cos(this.angle * Math.PI / 180), mag * Math.sin(this.angle * Math.PI / 180));
+        let fa = f.clone().divideScalar(this.m); 
 
+        this.ctx.beginPath(); // Start a new path
+        this.ctx.moveTo(this.p.x, this.p.y); // Move the pen to (30, 50)
+        this.ctx.lineTo(this.p.x + fa.x, this.p.y + fa.y); // Draw a line to (150, 100)
+        this.ctx.stroke(); // Render the path
+        
+        this.ctx.font = `10px Verdana`;
+
+        this.ctx.fillText(f.magnitude().toFixed(2), this.p.x + fa.x, this.p.y + fa.y)
 
         this.applyForce(f)
         let rand = new Victor((Math.random() * 2 - 1) * 30, (Math.random() * 2 - 1) * 30);
         let startingVelocity = this.v.clone().add(f.clone().multiplyScalar(-1/5).add(rand));
 
-        if(this.world.play == false) {
-            startingVelocity = f.clone().multiplyScalar(-1/5).add(rand);
+        if(this.world.play == gameModes.rtPaused) {
+            startingVelocity = f.clone().multiplyScalar(-1/2).add(rand);
         }
         this.world.add(new Tracer(this.ctx, this.p.x - this.boosterOffset * Math.cos(this.angle * Math.PI / 180), this.p.y - this.boosterOffset * Math.sin(this.angle * Math.PI / 180), 50, startingVelocity , this.world.deltaT));
     }

@@ -11,9 +11,22 @@ body {
 
 }
 
-#button {
+#play {
     position: absolute;
-    left: 20%;
+    left: 77%;
+    top: 1%
+}
+
+#stop {
+    position: absolute;
+    left: 80%;
+    top: 1%
+}
+
+
+#reset {
+    position: absolute;
+    left: 83%;
     top: 1%
 }
 
