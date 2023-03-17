@@ -1,6 +1,8 @@
 # CP2-Project
 ![Logo](res/Flowchart.png "Logo")
 
+https://asuradev99.github.io/CP2-Project/
+
 Because I am going to do a Computer Programming Internal Assessment I need to meet with a client first before I decide what my project will be. 
 
 ## Possible Ideas
