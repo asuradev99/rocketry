@@ -30,6 +30,7 @@ class Camera {
       //const mouseYWorld = (mouseY) / this.zoomTarget + this.y;
       
       this.zoomTarget *= Math.pow(this.zoomFactor, dir);
+      this.zoomTarget = Math.max(Math.min(this.zoomTarget, 8), 0.125);
 
       // const newMouseXWorld = (mouseX) / this.zoomTarget + this.x;
       // const newMouseYWorld = (mouseY) / this.zoomTarget + this.y;

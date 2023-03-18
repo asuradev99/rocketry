@@ -13,21 +13,27 @@ body {
 
 #play {
     position: absolute;
-    left: 77%;
+    left: 47%;
     top: 1%
 }
 
 #stop {
     position: absolute;
-    left: 80%;
-    top: 1%
+    left: 50%;
+    top: 1%;
 }
 
 
 #reset {
     position: absolute;
-    left: 83%;
-    top: 1%
+    left: 53%;
+    top: 1%;
+}
+
+#testgui {
+    position: absolute;
+    left: 70%;
+    top: 0%;
 }
 
 .dg.main.taller-than-window .close-button {

@@ -27,7 +27,8 @@ class Entity {
         this.ctx = ctx;
         this.p = Victor(x, y);
         this.m = _m;
-                
+        this.name = ""
+        this.isSelected = false;
     }
 
     render() {
@@ -38,6 +39,13 @@ class Entity {
         //pass
     }
 
+    mouseIn(worldmouseX, worldmouseY) {
+        if(this.p.distance(new Victor(worldmouseX, worldmouseY)) < massToRad(this.m)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
  
 }
 
@@ -59,7 +67,7 @@ class DynamicEntity extends Entity{
         if(this.world.play == gameModes.rtPlay) {
 
             this.world.entities.forEach(entity => {
-                if(entity instanceof Planet) {
+                if((entity instanceof Planet || entity instanceof DynamicEntity) && entity != this) {
                     this.a.add(this.calculateAcceleration(entity));
                     if(this.p.distance(entity.p) < (massToRad(this.m) + massToRad(entity.m))) {
                         collisionBuffer.add(entity.p.clone().subtract(this.p).normalize().multiplyScalar( this.p.distance(entity.p) - (massToRad(this.m) + massToRad(entity.m)) ))
@@ -109,7 +117,11 @@ class DynamicEntity extends Entity{
     }
 
     render() {
-        this.ctx.strokeStyle = '#000000';
+        if(this.isSelected) {
+            this.ctx.strokeStyle = '#fcbe03';
+        } else {
+            this.ctx.strokeStyle = '#000000';
+        }
         this.ctx.fillStyle = '#ff0000';
         drawCircle(this.ctx, this.p.x, this.p.y, massToRad(this.m))
         drawCircleFilled(this.ctx, this.p.x, this.p.y, massToRad(this.m))
@@ -161,11 +173,21 @@ class Planet extends Entity {
        // strokeWeight(4);
         //stroke(255);
         //fill(135, 135, 135)
-        this.ctx.strokeStyle = '#5c5c5c';
+        if(this.isSelected) {
+            this.ctx.strokeStyle = '#fcbe03';
+        } else {
+            this.ctx.strokeStyle = '#5c5c5c';
+        }
         drawCircle(this.ctx, this.p.x, this.p.y, massToRad(this.m));
         this.ctx.fillStyle = '#bfbfbf';
 
         drawCircleFilled(this.ctx, this.p.x, this.p.y, massToRad(this.m));
+
+        this.ctx.fillStyle = '#000000';
+        this.ctx.textAlign = 'center';
+        this.ctx.font = `${massToRad(this.m) / 5}px Verdana`;
+        this.ctx.fillText(this.name, this.p.x, this.p.y + massToRad(this.m) / 15);
+
     }
 }
 
@@ -225,7 +247,12 @@ class Rocket extends DynamicEntity {
     render() {
         this.ctx.save() 
 
-        this.ctx.fillStyle = '#000000'
+        if(this.isSelected) {
+            this.ctx.fillStyle = '#fcbe03';
+        } else {
+            this.ctx.fillStyle = '#000000';
+        }
+
         this.ctx.translate(this.p.x, this.p.y);
         this.ctx.rotate(this.angle * Math.PI / 180);
         var path=new Path2D();
@@ -237,12 +264,14 @@ class Rocket extends DynamicEntity {
         this.ctx.restore();
         super.render();
 
+
     }
     applyForce(F) {
         this.a.add(F.divideScalar(this.m))
     }
 
     applyBooster(M) {
+
         let mag = M;
         let fuelUsed = M * ( (this.fuelVel * this.world.deltaT) +  M  / (2 * this.m)  * Math.pow(this.world.deltaT, 2))
         if(this.currentFuel >= fuelUsed) {
@@ -273,7 +302,7 @@ class Rocket extends DynamicEntity {
         let startingVelocity = this.v.clone().add(f.clone().multiplyScalar(-1/5).add(rand));
 
         if(this.world.play == gameModes.rtPaused) {
-            startingVelocity = f.clone().multiplyScalar(-1/2).add(rand);
+            startingVelocity = f.clone().multiplyScalar(-5).add(rand);
         }
         this.world.add(new Tracer(this.ctx, this.p.x - this.boosterOffset * Math.cos(this.angle * Math.PI / 180), this.p.y - this.boosterOffset * Math.sin(this.angle * Math.PI / 180), 50, startingVelocity , this.world.deltaT));
     }

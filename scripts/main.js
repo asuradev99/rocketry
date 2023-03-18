@@ -52,6 +52,11 @@ function getMousePos(canvas, evt) {
 
 // animation : always running loop.
 canvas.addEventListener('mousedown', function (event) {
+    world.selectedEntity = false;
+    if(world.selectedGui) {
+      world.selectedGui.destroy();
+      world.selectedGui = false;
+    }
     if(uiState.mousedown == false) {
       mousePos = getMousePos(canvas, event);
       world.camera.mouseDown(mousePos.x, mousePos.y);
@@ -77,73 +82,84 @@ canvas.addEventListener('mousedown', function (event) {
  });
 
  window.addEventListener('keydown', function (event) {
-   switch(event.key) {
-      case "w": 
+
+      switch(event.key) {
+         case "w": 
+         if(document.activeElement.id == "body" || world.play != gameModes.editor) {
+
          world.camera.Zoom(mousePos.x, mousePos.y, 1);
-         break;
-      case "s": 
-         world.camera.Zoom(mousePos.x, mousePos.y, -1);
+         }
          break;
 
-      case "ArrowRight":
-         if(world.play != gameModes.editor) {
-            uiState.rocketDir = keyDir.rightDown;
+         case "s": 
+         if(document.activeElement.id == "body" || world.play != gameModes.editor) {
+            world.camera.Zoom(mousePos.x, mousePos.y, -1);
          }
-         //player.changeAngle(10)
          break;
-      case "ArrowLeft":
-         if(world.play != gameModes.editor) {
-            uiState.rocketDir = keyDir.leftUp;
-         }
-        // player.changeAngle(-10)
-         break;
-      case "ArrowUp":
-         if(world.play != gameModes.editor) {
-            uiState.accelDir = keyDir.leftUp;
-         }
-         //player.changeAngle(10)
-         break;
-      case "r":
-         let cameraSave = world.camera;
 
-         world.reset();
-         setup();
-         world.camera = cameraSave; 
-         break;
-      
-   }
+         case "ArrowRight":
+            if(world.play != gameModes.editor) {
+               uiState.rocketDir = keyDir.rightDown;
+            }
+            //player.changeAngle(10)
+            break;
+         case "ArrowLeft":
+            if(world.play != gameModes.editor) {
+               uiState.rocketDir = keyDir.leftUp;
+            }
+         // player.changeAngle(-10)
+            break;
+         case "ArrowUp":
+            if(world.play != gameModes.editor) {
+               uiState.accelDir = keyDir.leftUp;
+            }
+            //player.changeAngle(10)
+            break;
+         case "r":
+            let cameraSave = world.camera;
+
+            world.reset();
+            setup();
+            world.camera = cameraSave; 
+            break;
+         
+      }
+   } 
    
- })
+ )
+
+
 function pauseGame() {
 
 }
 
 window.addEventListener('keyup', function (event) {
-   switch(event.key) {
-      case "ArrowRight":
-         uiState.rocketDir = keyDir.none;
-         //player.changeAngle(10)
-         break;
-      case "ArrowLeft":
-         uiState.rocketDir = keyDir.none;
-        // player.changeAngle(-10)
-         break;
-      case "ArrowUp":
-         uiState.accelDir = keyDir.none; 
-         player.fuelVel = 0;
-         break;
+      switch(event.key) {
+         case "ArrowRight":
+            uiState.rocketDir = keyDir.none;
+            //player.changeAngle(10)
+            break;
+         case "ArrowLeft":
+            uiState.rocketDir = keyDir.none;
+         // player.changeAngle(-10)
+            break;
+         case "ArrowUp":
+            uiState.accelDir = keyDir.none; 
+            player.fuelVel = 0;
+            break;
 
-      case " ":
-         if(world.play == gameModes.rtPlay) {
-            world.play = gameModes.rtPaused;
-            playButton.innerText = "Play";
-         } else if(world.play == gameModes.rtPaused) {
-            world.play = gameModes.rtPlay;
-            playButton.innerText = "Pause";
-      
-         }
-         break;
-   }
+         case " ":
+            if(world.play == gameModes.rtPlay) {
+               world.play = gameModes.rtPaused;
+               playButton.innerText = "Play";
+            } else if(world.play == gameModes.rtPaused) {
+               world.play = gameModes.rtPlay;
+               playButton.innerText = "Pause";
+         
+            }
+            break;
+      }
+   
    
  })
 
@@ -202,20 +218,36 @@ resetButton.onclick = function() {
  }
 
 let stopPressed = function() {
+
    world.play = gameModes.editor;
    playButton.innerText = "Play";
-   
+   world.selectedEntity = false;
+   if(world.selectedGui) {
+      world.selectedGui.destroy();
+      world.selectedGui = false;
+   }
+   world.cameraLockPlayer = false;
+
+   enableGui(pFolder);
+   enableGui(scFolder);
 }
 
 
 let playPressed = function() {
    console.log("onclick function")
+
    if(world.play == gameModes.rtPlay) {
       world.play = gameModes.rtPaused;
-      playButton.innerText = "Play";
    } else if(world.play == gameModes.rtPaused || world.play == gameModes.editor) {
+      world.selectedEntity = false;
+      if(world.selectedGui && world.play == gameModes.editor) {
+         world.selectedGui.destroy();
+         world.selectedGui = false;
+      }
+      world.cameraLockPlayer = true;
+
       world.play = gameModes.rtPlay;
-      playButton.innerText = "Pause";
+
    }
 }
 
@@ -223,10 +255,18 @@ function setup() {
 
    ctx = canvas.getContext('2d');
    //world = new World(ctx);
-   player = new Rocket(ctx, world, -800, 0, 100)
+   player = new Rocket(ctx, world, 0, 0, 100)
 
    mousePos = 0; 
-   world.add(new Planet(ctx, 1000, 0, 1600000))
+   //world.add(new Planet(ctx, 1000, 0, 1600000))
+   world.add(new DynamicEntity(ctx, world, -500, -500, 1000))
+
+   world.entities[0].v = new Victor(-50, 0)
+   world.add(new DynamicEntity(ctx, world, -500, -700, 1000))
+   world.entities[1].v = new Victor(50, 0)
+
+   //world.add(new DynamicEntity(ctx, world, -500, -300, 1000))
+
    world.add(player)
 
    world.play = gameModes.editor;
@@ -234,11 +274,11 @@ function setup() {
 }
 
 function drawGrid() {
-   let step = 100 / world.camera.zoom;
-   let left = 0.5 + Math.ceil((world.camera.x - canvas.width / (2 * world.camera.zoom)) * 10  / step) * step;
-   let top = 0.5 + Math.ceil((world.camera.y - canvas.height / (2 * world.camera.zoom)) * 10 / step) * step;
-   let right = canvas.width / (2 * world.camera.zoom) * 10;
-   let bottom = canvas.height / (2 * world.camera.zoom) * 10;
+   let step = 100;
+   let left = -step + Math.ceil((world.camera.x - (canvas.width / 2 / world.camera.zoom))   / step) * step;
+   let top = -step + Math.ceil((world.camera.y - (canvas.height / 2 / world.camera.zoom))  / step) * step;
+   let right = world.camera.x + (canvas.width / 2 / world.camera.zoom) ;
+   let bottom = world.camera.y + (canvas.height / 2 / world.camera.zoom) ;
    ctx.clearRect(left, top, right - left, bottom - top);
    ctx.beginPath();
    for (let x = left; x < right; x += step) {
@@ -257,10 +297,16 @@ function drawGrid() {
 
 function animate() {
    if(world.play != gameModes.editor) {
-      pFolder.close();
-      scFolder.close();
-   }
+      disableGuiExcept(pFolder, []);
+      disableGuiExcept(scFolder, ["deltaT"]);
+      
+    }  
 
+   if(world.play == gameModes.rtPlay) {
+      playButton.innerText = "Pause";
+   } else {
+      playButton.innerText = "Play";
+   }
    camerax.updateDisplay();
    cameray.updateDisplay();
 
@@ -291,6 +337,17 @@ function animate() {
 
    }
   
+   if(!pFolder.closed) {
+      world.ctx.strokeStyle = '#5c5c5c';
+      ctx.globalAlpha = 0.5;
+      drawCircle(world.ctx, world.camera.x, world.camera.y, massToRad(world.newPlanetMass));
+      world.ctx.fillStyle = '#bfbfbf';
+
+      drawCircleFilled(world.ctx, world.camera.x, world.camera.y, massToRad(world.newPlanetMass));
+      ctx.globalAlpha = 1.0;
+
+   }
+
   world.render()
   world.update()
   //world.deleteMarked()
@@ -319,8 +376,8 @@ function animate() {
    ctx.textAlign = 'center';
    ctx.fillText(world.camera.x.toFixed(0) + ", " + world.camera.y.toFixed(0), canvas.width / 2, canvas.height / 2 - 20)
    ctx.textAlign = 'left';
-
   }
+
 
   ctx.fillStyle = "Red"
   ctx.fillRect(10, 10, player.currentFuel / player.fuelMaxJ * 100, 50)
@@ -328,17 +385,20 @@ function animate() {
   ctx.lineWidth = 5;
   ctx.strokeRect(10, 10, 100, 50)
 
-  
+  ctx.textAlign = 'left';
   ctx.fillStyle = "Black"
   ctx.fillText( " Fuel:  " + player.currentFuel / 1000 + " kJ ", 125, 40);
 
-  ctx.font = `40px Verdana`;
-  ctx.fillText(player.currentFuel, 10, 106);
-  ctx.fillText(player.v.length(), 10, 126);
-  
+  ctx.fillStyle = '#ccc'
+  ctx.fillRect((canvas.width / 2) - (0.04 * canvas.width), 0, canvas.width * 0.10, 70);
+  ctx.strokeStyle = '#5c5c5c'
+  ctx.strokeRect((canvas.width / 2) - (0.04 * canvas.width), 0, canvas.width * 0.10, 70);
 
-  ctx.fillStyle = "Black"
-  ctx.fillText( " Mode:  " + world.play, 500, 40);
+  ctx.textAlign = 'center'
+  ctx.fillStyle = '#5c5c5c'
+  ctx.font = `20px Verdana`;
+
+  ctx.fillText(world.play, canvas.width/2 + 15, 60 );
   
   if(player.crashed) {
       alert("You Crashed!")
