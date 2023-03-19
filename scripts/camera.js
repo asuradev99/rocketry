@@ -74,4 +74,19 @@ class Camera {
       // this.ctx.translate(this.x, this.y);
       this.ctx.resetTransform();
     }
+
+    // clone() {
+    //   let newCamera = new Camera(this.ctx, this.width, this.height);
+
+    //   newCamera.x = this.x;
+    //   newCamera.y = this.y;
+    //   newCamera.zoom = this.zoom;
+    //   newCamera.zoomFactor = this.zoomFactor;
+    //   newCamera.zoomTarget = this.zoomTarget; 
+    //   newCamera.startX = this.startX;
+    //   newCamera.startY = this.startY;
+
+    //   return newCamera
+
+    // }
   }

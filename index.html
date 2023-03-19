@@ -4,7 +4,6 @@
 <head>
   <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script> </script> -->
 
-  
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HTML 5 Boilerplate</title>
@@ -14,12 +13,17 @@
   <button type="button" id="stop" onmousedown="stopPressed()">Stop</button>
   <button type="button" id="play" onmousedown="playPressed()">Play</button>
   <button type="button" id="reset">Reset</button>
+  <input  type="file" id="load" onchange="readFile(this)"></input>
+  <button type="button" id="save" onmousedown="savePressed()">Save</button>
+
 
 
   <link rel="stylesheet" href="./style.css">
 
   <script src="./lib/victor.js"></script>
   <script src="./lib/dat.gui.min.js"></script>
+  <script src="./lib/jquery-3.6.4.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"></script>
 
   <script  type="text/javascript" src="./scripts/world.js"></script>
   <script  type="text/javascript" src="./scripts/entity.js"></script>

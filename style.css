@@ -13,22 +13,37 @@ body {
 
 #play {
     position: absolute;
-    left: 47%;
+    left: 44%;
     top: 1%
 }
 
 #stop {
     position: absolute;
-    left: 50%;
+    left: 47%;
     top: 1%;
 }
 
 
 #reset {
     position: absolute;
+    left: 50%;
+    top: 1%;
+}
+
+
+#load {
+    position: absolute;
     left: 53%;
     top: 1%;
 }
+
+
+#save {
+    position: absolute;
+    left: 63%;
+    top: 1%;
+}
+
 
 #testgui {
     position: absolute;

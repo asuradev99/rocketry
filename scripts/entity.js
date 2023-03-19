@@ -39,8 +39,8 @@ class Entity {
         //pass
     }
 
-    mouseIn(worldmouseX, worldmouseY) {
-        if(this.p.distance(new Victor(worldmouseX, worldmouseY)) < massToRad(this.m)) {
+    mouseIn(pworldmouseX, pworldmouseY) {
+        if(this.p.distance(new Victor(pworldmouseX, pworldmouseY)) < massToRad(this.m)) {
             return true;
         } else {
             return false;
@@ -51,9 +51,8 @@ class Entity {
 
 
 class DynamicEntity extends Entity{
-    constructor(ctx, world, x, y, m) {
+    constructor(ctx, x, y, m) {
         super(ctx, x, y, m);
-        this.world = world;
         this.v = Victor(0,0);
         this.a = Victor(0,0);
         this.maxCrashVelocity = 300;
@@ -62,13 +61,13 @@ class DynamicEntity extends Entity{
         this.showVelocity = false;
     }
     
-    update() {
+    update(pworld) {
         let collisionBuffer = new Victor(0, 0);
-        if(this.world.play == gameModes.rtPlay) {
+        if(pworld.play == gameModes.rtPlay) {
 
-            this.world.entities.forEach(entity => {
+            pworld.entities.forEach(entity => {
                 if((entity instanceof Planet || entity instanceof DynamicEntity) && entity != this) {
-                    this.a.add(this.calculateAcceleration(entity));
+                    this.a.add(this.calculateAcceleration(entity, pworld));
                     if(this.p.distance(entity.p) < (massToRad(this.m) + massToRad(entity.m))) {
                         collisionBuffer.add(entity.p.clone().subtract(this.p).normalize().multiplyScalar( this.p.distance(entity.p) - (massToRad(this.m) + massToRad(entity.m)) ))
                         let disp = entity.p.clone().subtract(this.p).normalize();
@@ -85,10 +84,10 @@ class DynamicEntity extends Entity{
             });
         }
 
-        let newv = this.v.clone().add(this.a.clone().multiplyScalar(this.world.deltaT));
+        let newv = this.v.clone().add(this.a.clone().multiplyScalar(pworld.deltaT));
 
-        if(this.world.play == gameModes.rtPlay) {
-            this.p.add(this.v.clone().add(newv).multiplyScalar(this.world.deltaT / 2));
+        if(pworld.play == gameModes.rtPlay) {
+            this.p.add(this.v.clone().add(newv).multiplyScalar(pworld.deltaT / 2));
         
             this.p.add(collisionBuffer);
         }
@@ -99,7 +98,7 @@ class DynamicEntity extends Entity{
         this.a = Victor(0,0);
     }
 
-    calculateAcceleration(b) {
+    calculateAcceleration(b, pworld) {
 
         const distance = this.p.distance(b.p);
 
@@ -108,7 +107,7 @@ class DynamicEntity extends Entity{
         // Universal gravitational constant
         
         // Calculate the magnitude of the gravitational force
-        const force = this.world.gravitationalConstant * (b.m / Math.pow(distance, 2));
+        const force = pworld.gravitationalConstant * (b.m / Math.pow(distance, 2));
         
         const acceleration = disp.multiplyScalar(force); 
         
@@ -116,7 +115,10 @@ class DynamicEntity extends Entity{
         return acceleration;
     }
 
-    render() {
+    render(pworld) {
+
+       // console.log(pworld.entities);
+
         if(this.isSelected) {
             this.ctx.strokeStyle = '#fcbe03';
         } else {
@@ -130,9 +132,9 @@ class DynamicEntity extends Entity{
         this.ctx.strokeStyle = '#0000ff';
         if(this.showForces) {
 
-            this.world.entities.forEach(entity => {
-                if(entity instanceof Planet) {
-                var a = this.calculateAcceleration(entity);
+            pworld.entities.forEach(entity => {
+                if(entity instanceof Planet || entity instanceof DynamicEntity) {
+                var a = this.calculateAcceleration(entity, pworld);
                                 // Calculate the acceleration of object a
                     this.ctx.beginPath(); // Start a new path
                     this.ctx.moveTo(this.p.x, this.p.y); // Move the pen to (30, 50)
@@ -165,7 +167,7 @@ class DynamicEntity extends Entity{
 class Planet extends Entity {
     constructor(ctx, x, y, m) {
         super(ctx, x, y, m);
-        //this.r = 
+        this.surfaceFriction = 1; 
     }
 
 
@@ -230,21 +232,20 @@ class Tracer extends Entity {
 
 
 class Rocket extends DynamicEntity {
-    constructor(ctx, world, x, y, m) {
-        super(ctx, world, x, y, m);
+    constructor(ctx, x, y, m) {
+        super(ctx, x, y, m);
         this.fuelMaxJ =  1000000 * 1000;
         this.currentFuel = this.fuelMaxJ;
         this.fuelVel = 0;
         this.angle = 90; 
         this.boosterOffset = 20;
-        console.log(this.world)
     }
 
     changeAngle(deltaAngle) {
         this.angle += deltaAngle;
     }
 
-    render() {
+    render(pworld) {
         this.ctx.save() 
 
         if(this.isSelected) {
@@ -262,7 +263,7 @@ class Rocket extends DynamicEntity {
         path.lineTo( 0 + this.boosterOffset / 2, 0);
         ctx.fill(path);
         this.ctx.restore();
-        super.render();
+        super.render(pworld);
 
 
     }
@@ -270,13 +271,13 @@ class Rocket extends DynamicEntity {
         this.a.add(F.divideScalar(this.m))
     }
 
-    applyBooster(M) {
+    applyBooster(M, pworld) {
 
         let mag = M;
-        let fuelUsed = M * ( (this.fuelVel * this.world.deltaT) +  M  / (2 * this.m)  * Math.pow(this.world.deltaT, 2))
+        let fuelUsed = M * ( (this.fuelVel * pworld.deltaT) +  M  / (2 * this.m)  * Math.pow(pworld.deltaT, 2))
         if(this.currentFuel >= fuelUsed) {
             this.currentFuel -= fuelUsed; 
-            this.fuelVel += (M / this.m) * this.world.deltaT;
+            this.fuelVel += (M / this.m) * pworld.deltaT;
         } else {
             console.log(this.currentFuel + " " + fuelUsed);
             mag = ((this.currentFuel / fuelUsed)) * M; 
@@ -301,9 +302,9 @@ class Rocket extends DynamicEntity {
         let rand = new Victor((Math.random() * 2 - 1) * 30, (Math.random() * 2 - 1) * 30);
         let startingVelocity = this.v.clone().add(f.clone().multiplyScalar(-1/5).add(rand));
 
-        if(this.world.play == gameModes.rtPaused) {
+        if(pworld.play == gameModes.rtPaused) {
             startingVelocity = f.clone().multiplyScalar(-5).add(rand);
         }
-        this.world.add(new Tracer(this.ctx, this.p.x - this.boosterOffset * Math.cos(this.angle * Math.PI / 180), this.p.y - this.boosterOffset * Math.sin(this.angle * Math.PI / 180), 50, startingVelocity , this.world.deltaT));
+        pworld.add(new Tracer(this.ctx, this.p.x - this.boosterOffset * Math.cos(this.angle * Math.PI / 180), this.p.y - this.boosterOffset * Math.sin(this.angle * Math.PI / 180), 50, startingVelocity , pworld.deltaT));
     }
 }

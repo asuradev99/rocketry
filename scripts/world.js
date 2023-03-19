@@ -22,6 +22,35 @@ var enableGui = function(igui) {
         
     })
 }
+
+
+
+
+
+var copyInto = function(a, b) {
+     for(var property in b) {
+        if(Object.prototype.hasOwnProperty.call(b, property) && Object.prototype.hasOwnProperty.call(a, property)) {
+            if(property == "world" || property == "ctx") {
+                if(!a[property]) {
+                    console.log("found epxiec")
+
+                    a[property] = b[property];
+
+                }
+            } else {
+                if(property != "a" && property != "v" && property != "p") {
+                    a[property] = _.cloneDeep(b[property]);
+                } else {
+                    console.log(b[property])
+                    a[property] = Victor.fromObject(b[property])
+                }
+            }
+        }
+    }
+
+
+}
+
 class World {
     constructor(ctx) {
         this.ctx = ctx;
@@ -55,7 +84,7 @@ class World {
                 }
 
                 if((item instanceof Tracer || item instanceof Rocket)  || (this.play != gameModes.editor)) {
-                    let status = item.update();
+                    let status = item.update(this);
                     
                 
                if(status == "delete") {
@@ -145,10 +174,98 @@ class World {
     render() {
         //
         this.entities.forEach(function (item, index) {
-            item.render();
-        })
+            item.render(this);
+        }, this)
     }
     reset() {
+        this.play = gameModes.editor;
         this.entities = [];
     }
+
+    saveClone() {
+        let newWorld = new World(this.ctx);
+        copyInto(newWorld.camera, this.camera);
+        console.log("newworld camera" + newWorld.camera);
+        this.entities.forEach(function(item) {
+            var newEntity; 
+            if(item.surfaceFriction) {
+                newEntity = new Planet(); 
+                console.log("Found a planet")
+            } else if(item.fuelMaxJ) {
+                newEntity = new Rocket();
+                console.log("Found a rocket")
+
+            } else {
+                newEntity = new DynamicEntity(); 
+                console.log("Found a dyanmic entity")
+
+            }
+            copyInto(newEntity, item)
+
+            newWorld.entities.push(newEntity)
+        });
+
+        newWorld.play = gameModes.editor;
+        newWorld.gravitationalConstant = this.gravitationalConstant;
+        newWorld.ppm = this.ppm;
+        newWorld.deltaT = this.deltaT;
+        //gui variables
+        newWorld.newPlanetX = 0;
+        newWorld.newPlanetY = 0;
+        newWorld.newPlanetMass = 10000;
+        newWorld.cameraLockPlayer = false; 
+
+        //gui variables
+        newWorld.selectedEntity = this.selectedEntity;
+        newWorld.selectedGui = this.selectedGui;
+        newWorld.testFolder = this.testFolder;
+
+        return newWorld;
+    }
+    
+    generateSaveFile() {
+
+    }
+
+}
+
+var saveClone = function(oworld, ctx) {
+    let newWorld = new World(ctx);
+        copyInto(newWorld.camera, oworld.camera);
+     //   console.log("newworld camera" + newWorld.camera);
+        oworld.entities.forEach(function(item) {
+            var newEntity; 
+            if(item.surfaceFriction) {
+                newEntity = new Planet(ctx); 
+                console.log("Found a planet")
+            } else if(item.fuelMaxJ) {
+                newEntity = new Rocket(ctx);
+                console.log("Found a rocket")
+
+            } else {
+                newEntity = new DynamicEntity(ctx); 
+                console.log("Found a dyanmic entity")
+
+            }
+            copyInto(newEntity, item)
+
+            newWorld.entities.push(newEntity)
+        });
+
+        newWorld.play = gameModes.editor;
+        newWorld.gravitationalConstant = oworld.gravitationalConstant;
+        newWorld.ppm = oworld.ppm;
+        newWorld.deltaT = oworld.deltaT;
+        //gui variables
+        newWorld.newPlanetX = 0;
+        newWorld.newPlanetY = 0;
+        newWorld.newPlanetMass = 10000;
+        newWorld.cameraLockPlayer = false; 
+
+        //gui variables
+        newWorld.selectedEntity = null; //oworld.selectedEntity;
+        newWorld.selectedGui = null; //oworld.selectedGui;
+        newWorld.testFolder = null; //oworld.testFolder;
+
+        return newWorld;
 }
