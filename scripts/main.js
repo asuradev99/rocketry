@@ -339,10 +339,10 @@ function setup() {
 
 function drawGrid() {
    let step = 100;
-   let left = -step + Math.ceil((world.camera.x - (canvas.width / 2 / world.camera.zoom)) / step) * step;
-   let top = -step + Math.ceil((world.camera.y - (canvas.height / 2 / world.camera.zoom)) / step) * step;
-   let right = world.camera.x + (canvas.width / 2 / world.camera.zoom);
-   let bottom = world.camera.y + (canvas.height / 2 / world.camera.zoom);
+   let left = -step +  Math.ceil(1.5 * (world.camera.x - (canvas.width / 2 / world.camera.zoom)) / step) * step;
+   let top = -step + Math.ceil(1.5 *  (world.camera.y - (canvas.height / 2 / world.camera.zoom)) / step) * step;
+   let right = world.camera.x + 1.5 *  (canvas.width / 2 / world.camera.zoom);
+   let bottom = world.camera.y + 1.5 * (canvas.height / 2 / world.camera.zoom);
    ctx.clearRect(left, top, right - left, bottom - top);
    ctx.beginPath();
    for (let x = left; x < right; x += step) {
@@ -360,6 +360,11 @@ function drawGrid() {
 
 
 function animate() {
+
+
+   canvas.width  = window.innerWidth;
+   canvas.height = window.innerHeight;
+
    if (world.play != gameModes.editor) {
       disableGuiExcept(pFolder, []);
       disableGuiExcept(scFolder, ["deltaT"]);
@@ -453,9 +458,9 @@ function animate() {
    ctx.fillText(" Fuel:  " + player.currentFuel / 1000 + " kJ ", 125, 40);
 
    ctx.fillStyle = '#ccc'
-   ctx.fillRect((canvas.width / 2) - (0.075 * canvas.width), 0, canvas.width * 0.17, 70);
+   ctx.fillRect((canvas.width / 2) - (0.155 * canvas.width), 0, canvas.width * 0.34, 70);
    ctx.strokeStyle = '#5c5c5c'
-   ctx.strokeRect((canvas.width / 2) - (0.075 * canvas.width), 0, canvas.width * 0.17, 70);
+   ctx.strokeRect((canvas.width / 2) - (0.155 * canvas.width), 0, canvas.width * 0.34, 70);
 
    ctx.textAlign = 'center'
    ctx.fillStyle = '#5c5c5c'
@@ -483,6 +488,7 @@ setup()
 animate();
 
 function download(data, filename, type) {
+   //console.log("OAVOIAOIW HDROIASE HF h")
    var file = new Blob([data], {type: type});
    if (window.navigator.msSaveOrOpenBlob) // IE10+
        window.navigator.msSaveOrOpenBlob(file, filename);

@@ -246,6 +246,7 @@ class Rocket extends DynamicEntity {
     }
 
     render(pworld) {
+        this.boosterOffset = massToRad(this.m) * 2;
         this.ctx.save() 
 
         if(this.isSelected) {
