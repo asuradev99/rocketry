@@ -1,12 +1,29 @@
-# CP2-Project
+# Rocketry
 ![Logo](res/Flowchart.png "Logo")
 
 https://asuradev99.github.io/CP2-Project/
 
-Because I am going to do a Computer Programming Internal Assessment I need to meet with a client first before I decide what my project will be. 
+- A simple and light two-dimensional gravitation simulator featuring a controllable rocket and a planet editor
+- Specifically designed to run on Chromebooks and other computationally-challenged devices
+- Load and save configurations to create and share levels and configurations on the fly
 
-## Possible Ideas
--- Player can increase their velocity and modify their angle when the game is paused (this allows for very precise maneuvers, facilitating the use of calculation)
--- physical "checkpoints" or areas that the players must enter  in order to win the level
--- Planets have atmospheres with friction 
--- 
+## Controls
+
+| Key      | Function |
+| :----------- | -----------: |
+| `w`      | Zoom in       |
+| `s`   | Zoom out        |
+| `space`| Play/pause the simulation while it is running|
+| `x` | Delete the selected object (Only in Editor mode)|
+| `LM Drag` | Drag the camera (only in Editor mode) |
+
+
+## Settings Explanation
+
+| Name      | Function |
+| :----------- | -----------: |
+| `w`      | Zoom in       |
+| `s`   | Zoom out        |
+| `space`| Play/pause the simulation while it is running|
+| `x` | Delete the selected object (Only in Editor mode)|
+| `LM Drag` | Drag the camera (only in Editor mode) |
