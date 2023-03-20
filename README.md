@@ -1,5 +1,5 @@
 # Rocketry
-![Logo](res/Flowchart.png "Logo")
+![Logo](res/TitleImage.png "Logo")
 
 https://asuradev99.github.io/CP2-Project/
 
