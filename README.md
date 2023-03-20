@@ -22,8 +22,11 @@ https://asuradev99.github.io/CP2-Project/
 
 | Name      | Function |
 | :----------- | -----------: |
-| `w`      | Zoom in       |
-| `s`   | Zoom out        |
-| `space`| Play/pause the simulation while it is running|
-| `x` | Delete the selected object (Only in Editor mode)|
-| `LM Drag` | Drag the camera (only in Editor mode) |
+| `gravitationalConstant`      | strength of the gravitational force between massive objects      |
+| `deltaT`   | Speed of the simulation (faster = less accurate)     |
+| `newPlanetMass`| Set the mass of the new planet|
+| `Add_Planet` | Add a new planet (Only in Editor mode)|
+| `Camera x/y` | Camera x and y coordinates (only in Editor mode) |
+| `Toggle Follow Player` | Toggle whether the camera follows the player or can move around freely |
+| `Toggle Show Velocity` | Show the velocity vectors of moving objects |
+| `Toggle Show Forces` | Show the forces acting on objects with mass |
