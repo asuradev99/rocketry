@@ -69,6 +69,15 @@ class DynamicEntity extends Entity{
         let collisionBuffer = new Victor(0, 0);
         if(pworld.play == gameModes.rtPlay) {
 
+            if(this.trace && this.traceVar >= this.traceVarMax) {
+                this.traceVar = 0;
+                pworld.add(new Tracer(this.ctx, this.p.x, this.p.y, 500 * this.traceVarMax, new Victor(0, 0), 0))
+            } else {
+                //(this.traceVar)
+                if(this.trace) {
+                    this.traceVar += 1;
+                }
+            }
             pworld.entities.forEach(entity => {
                 if((entity instanceof Planet || entity instanceof DynamicEntity) && entity != this) {
                     this.a.add(this.calculateAcceleration(entity, pworld));
@@ -100,6 +109,7 @@ class DynamicEntity extends Entity{
        // if(!(this instanceof Rocket)) {
        // }
         this.a = Victor(0,0);
+
     }
 
     calculateAcceleration(b, pworld) {
@@ -166,15 +176,7 @@ class DynamicEntity extends Entity{
             this.ctx.fillText(this.v.magnitude().toFixed(2), this.p.x + this.v.x, this.p.y + this.v.y)
         }
 
-        if(this.trace && this.traceVar >= this.traceVarMax) {
-            this.traceVar = 0;
-            pworld.add(new Tracer(this.ctx, this.p.x, this.p.y, 500 * this.traceVarMax, new Victor(0, 0), 0))
-        } else {
-            //(this.traceVar)
-            if(this.trace) {
-                this.traceVar += 1;
-            }
-        }
+       
     }
 }
 
