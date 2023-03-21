@@ -11,11 +11,14 @@ https://asuradev99.github.io/CP2-Project/
 
 | Key      | Function |
 | :----------- | -----------: |
-| `w`      | Zoom in       |
-| `s`   | Zoom out        |
+| `w / s`      | Zoom in / out      |
 | `space`| Play/pause the simulation while it is running|
 | `x` | Delete the selected object (Only in Editor mode)|
 | `LM Drag` | Drag the camera (only in Editor mode) |
+| `Right Arrow / Left Arrow` | Turn the rocket right/left (Only in Player mode) |
+| `Up Arrow` | Accelerate the rocket (Only in Player mode) |
+| `f` | Toggle force and velocity vectors for dynamic entities |
+
 
 
 ## Settings Explanation
@@ -32,3 +35,8 @@ https://asuradev99.github.io/CP2-Project/
 | `Toggle Show Velocity` | Show the velocity vectors of moving objects |
 | `Toggle Show Forces` | Show the forces acting on objects with mass |
 | `Toggle Trace Positions` | If true, tracks the player's (and other moving entities') positions over time using markers. |
+
+## Tips and Tricks
+- In the Editor mode, click on an object to edit its properties. 
+- In any GUI, to quickly increase or decrease a numerical property, click on the textbox with the number in it and drag the cursor up/down to increase/decrease the value. 
+- In Play mode, you will notice that you can still accelerate and rotate the player while the game is paused. This mechanism is deliberate, and is designed to allow you to make precise maneuvers. The `f` control is very useful while this mechanic is being used, as you can see how accelerating the rocket in a certain direction affects its velocity without the simulation progressing. 
