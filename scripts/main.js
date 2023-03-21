@@ -197,7 +197,7 @@ let setupGui = function (lworld) {
    var obj = {
       Add_Planet: function () {
          if (lworld.play == gameModes.editor) {
-            if(!isDynamic) {
+            if(!(isDynamic.isDynamic)) {
                lworld.add(new Planet(ctx, lworld.newPlanetX, lworld.newPlanetY, lworld.newPlanetMass))
             } else {
                lworld.add(new DynamicEntity(ctx, lworld.newPlanetX, lworld.newPlanetY, lworld.newPlanetMass))
@@ -259,9 +259,17 @@ resetButton.onclick = function () {
    
 }
 let savePressed = function () {
-   var jsonWorld = JSON.stringify(world)
+   if(world.play == gameModes.editor) {
 
-   download(jsonWorld, "config.txt", ".txt")
+      world.selectedEntity = null;
+      world.selectedGui = null;
+      world.testFolder = null;
+
+
+      var jsonWorld = JSON.stringify(world)
+
+      download(jsonWorld, "config.txt", ".txt")
+   }
    
    // // world.entities.forEach(item => {
    // //    console.log(JSON.stringify(item))
