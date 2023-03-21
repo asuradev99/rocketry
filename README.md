@@ -24,7 +24,7 @@ https://asuradev99.github.io/CP2-Project/
 | :----------- | -----------: |
 | `gravitationalConstant`      | strength of the gravitational force between massive objects      |
 | `deltaT`   | Speed of the simulation (faster = less accurate)     |
-| `newPlanetMass`| Set the mass of the new planet|
+| `newPlanetMass`| Set the mass of the new planet (yes, it can be negative)|
 | `isDynamic`| If checked, the planet is dynamic and can accelerate based on it's attraction to other planets and dynamic entities.|
 | `Add_Planet` | Add a new planet (Only in Editor mode)|
 | `Camera x/y` | Camera x and y coordinates (only in Editor mode) |
