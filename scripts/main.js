@@ -1,9 +1,13 @@
 "use strict";
 
-const canvas = document.createElement('canvas');
+const canvas = document.getElementById("mainCanvas");
+
+
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
-document.body.appendChild(canvas);
+
+
+//document.body.appendChild(canvas);
 
 var ctx, world, backupWorld, player, mousePos, gui, playButton, stopButton, resetButton;
 backupWorld = null;
@@ -76,6 +80,8 @@ canvas.addEventListener('mousemove', function (event) {
 
 
    if (uiState.mousedown) {
+      world.cameraLockPlayer = false;
+
       world.camera.mouseDrag(mousePos.x, mousePos.y);
    }
 
@@ -86,6 +92,10 @@ window.addEventListener('keydown', function (event) {
 
    switch (event.key) {
       case "w":
+         pFolder.close()
+     
+    
+
          if (document.activeElement.id == "body" || world.play != gameModes.editor) {
 
             world.camera.Zoom(mousePos.x, mousePos.y, 1);
@@ -116,13 +126,18 @@ window.addEventListener('keydown', function (event) {
          }
          //player.changeAngle(10)
          break;
-      case "r":
-         let cameraSave = world.camera;
 
-         world.reset();
-         setup();
-         world.camera = cameraSave;
-         break;
+      case "c": 
+         if(world.play != gameModes.editor) {
+            world.cameraLockPlayer = !world.cameraLockPlayer;
+         }
+
+      case "f":
+         world.toggleForces()
+         world.toggleVelocities()
+
+      case "x":
+         world.selectedEntity.delete = true;
 
    }
 }
@@ -151,11 +166,9 @@ window.addEventListener('keyup', function (event) {
 
       case " ":
          if (world.play == gameModes.rtPlay) {
-            world.play = gameModes.rtPaused;
-            playButton.innerText = "Play";
+            pauseGame()
          } else if (world.play == gameModes.rtPaused) {
-            world.play = gameModes.rtPlay;
-            playButton.innerText = "Pause";
+            playGame()
 
          }
          break;
@@ -192,7 +205,7 @@ let setupGui = function (lworld) {
    cameray = gui.add(lworld.camera, 'y')
    var cameraLock = {
       Toggle_Follow_Player: function () {
-         lworld.cameraLockPlayer = !lworld.cameraLockPlayer;
+       //  lworld.cameraLockPlayer = !lworld.cameraLockPlayer;
       }
    };
 
@@ -213,8 +226,16 @@ let setupGui = function (lworld) {
    }
 
 
+   var togTrace = {
+      Toggle_Trace_Positions: function () {
+         lworld.toggleTrace();
+      }
+   }
+
+
    plFolder.add(togVel, 'Toggle_Show_Velocity');
    plFolder.add(togForces, 'Toggle_Show_Forces');
+   plFolder.add(togTrace, 'Toggle_Trace_Positions');
 
 
    gui.show();
@@ -277,14 +298,8 @@ let stopPressed = function () {
    enableGui(scFolder);
 }
 
-
-let playPressed = function () {
-   console.log("onclick function")
-
-   if (world.play == gameModes.rtPlay) {
-      world.play = gameModes.rtPaused;
-   } else if (world.play == gameModes.rtPaused || world.play == gameModes.editor) {
-      world.selectedEntity = false;
+function playGame() {
+   world.selectedEntity = false;
       if (world.selectedGui && world.play == gameModes.editor) {
          world.selectedGui.destroy();
          world.selectedGui = false;
@@ -295,13 +310,32 @@ let playPressed = function () {
       world.cameraLockPlayer = true;
 
       world.play = gameModes.rtPlay;
+      player.currentFuel = player.fuelMaxJ; 
+}
 
+function pauseGame() {
+   world.play = gameModes.rtPaused;
+   
+}
+
+let playPressed = function () {
+   console.log("onclick function")
+
+   if (world.play == gameModes.rtPlay) {
+      
+      pauseGame()
+   } else if (world.play == gameModes.rtPaused || world.play == gameModes.editor) {
+      playGame()
    }
 }
 
 function setup() {
 
+
+
    ctx = canvas.getContext('2d');
+
+
 
    if (backupWorld) {
       world = backupWorld.saveClone();
@@ -323,45 +357,44 @@ function setup() {
       world.add(player)
 
       mousePos = 0;
-      //world.add(new Planet(ctx, 1000, 0, 1600000))
-      world.add(new DynamicEntity(ctx, -500, -500, 1000))
-      world.add(new DynamicEntity(ctx, -500, -700, 1000))
+      world.add(new Planet(ctx, 0, 500, 160000))
 
-      //world.add(new DynamicEntity(ctx, world, -500, -300, 1000))
-
+      world.entities[1].name = "Lambert IV"
 
       world.play = gameModes.editor;
 
       setupGui(world);
    }
-   //world.entities[1].v.y = -100;
+
+   //world.entities[1].v.y = -10;
 }
+
 
 function drawGrid() {
    let step = 100;
-   let left = -step +  Math.ceil(1.5 * (world.camera.x - (canvas.width / 2 / world.camera.zoom)) / step) * step;
-   let top = -step + Math.ceil(1.5 *  (world.camera.y - (canvas.height / 2 / world.camera.zoom)) / step) * step;
+   if(world.camera.zoom < 0.5) {
+      step *= 4;
+   }
+   let left = -step +  Math.ceil((world.camera.x - 1.5 * (canvas.width / 2 / world.camera.zoom)) / step) * step;
+   let top = -step + Math.ceil((world.camera.y - 1.5 * (canvas.height / 2 / world.camera.zoom)) / step) * step;
    let right = world.camera.x + 1.5 *  (canvas.width / 2 / world.camera.zoom);
    let bottom = world.camera.y + 1.5 * (canvas.height / 2 / world.camera.zoom);
    ctx.clearRect(left, top, right - left, bottom - top);
    ctx.beginPath();
    for (let x = left; x < right; x += step) {
-      ctx.moveTo(x, top);
-      ctx.lineTo(x, bottom);
+   ctx.moveTo(x, top);
+   ctx.lineTo(x, bottom);
    }
    for (let y = top; y < bottom; y += step) {
-      ctx.moveTo(left, y);
-      ctx.lineTo(right, y);
+   ctx.moveTo(left, y);
+   ctx.lineTo(right, y);
    }
    ctx.strokeStyle = "#BEBEBE";
    ctx.lineWidth = 5 + 1 / Math.pow(world.camera.zoom, 1.1);
    ctx.stroke();
+
 }
-
-
 function animate() {
-
-
    canvas.width  = window.innerWidth;
    canvas.height = window.innerHeight;
 
@@ -382,9 +415,10 @@ function animate() {
    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
    // x = x + 1;
+  
    world.camera.apply()
-   drawGrid();
 
+   drawGrid();
    if (world.cameraLockPlayer) {
 
       world.camera.x = player.p.x;
@@ -405,7 +439,7 @@ function animate() {
 
    }
 
-   if (!pFolder.closed) {
+   if (!pFolder.closed && world.play == gameModes.editor) {
       world.ctx.strokeStyle = '#5c5c5c';
       ctx.globalAlpha = 0.5;
       drawCircle(world.ctx, world.camera.x, world.camera.y, massToRad(world.newPlanetMass));
@@ -429,9 +463,7 @@ function animate() {
    } else if (uiState.rocketDir == keyDir.leftUp) {
       player.changeAngle(-3)
    }
-   //   ctx.fillText( " Mouse coords: " + mousePos.x + " " + mousePos.y, 10, 66);
-   //   let worldCoords = getMouseWorld(mousePos.x, mousePos.y);
-   //   ctx.fillText( " World Coords: " + worldCoords.x + " " + worldCoords.y, 10, 86 );
+
    if (!world.cameraLockPlayer) {
 
       ctx.fillStyle = "#000000"
@@ -472,8 +504,7 @@ function animate() {
       alert("You Crashed!")
       uiState.rocketDir = keyDir.none;
       uiState.accelDir = keyDir.none;
-      world.reset()
-      setup()
+      stopPressed()
    }
    // clear canvas
    //ctx.rotate(x);
@@ -488,7 +519,6 @@ setup()
 animate();
 
 function download(data, filename, type) {
-   //console.log("OAVOIAOIW HDROIASE HF h")
    var file = new Blob([data], {type: type});
    if (window.navigator.msSaveOrOpenBlob) // IE10+
        window.navigator.msSaveOrOpenBlob(file, filename);

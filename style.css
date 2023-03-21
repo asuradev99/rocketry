@@ -14,13 +14,15 @@ body {
 #play {
     position: absolute;
     left: 36%;
-    top: 1%
+    top: 1%;
+
 }
 
 #stop {
     position: absolute;
     left: 41%;
     top: 1%;
+
 }
 
 
@@ -35,6 +37,7 @@ body {
     position: absolute;
     left: 52%;
     top: 1%;
+
 }
 
 input[type='file'] {
@@ -45,13 +48,15 @@ input[type='file'] {
     position: absolute;
     left: 62%;
     top: 1%;
+
 }
 
 
 #testgui {
     position: absolute;
-    left: 72%;
-    top: 770px;
+    left: 86%;
+    top: 840px;
+
 }
 
 .dg.main.taller-than-window .close-button {

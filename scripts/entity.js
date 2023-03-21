@@ -29,6 +29,7 @@ class Entity {
         this.m = _m;
         this.name = ""
         this.isSelected = false;
+        this.delete = false;
     }
 
     render() {
@@ -59,6 +60,9 @@ class DynamicEntity extends Entity{
         this.crashed = false; 
         this.showForces = false;
         this.showVelocity = false;
+        this.trace = false;
+        this.traceVar = 0;
+        this.traceVarMax = 5; 
     }
     
     update(pworld) {
@@ -73,7 +77,7 @@ class DynamicEntity extends Entity{
                         let disp = entity.p.clone().subtract(this.p).normalize();
                         let normalComponent = disp.clone().multiplyScalar(this.v.clone().dot(disp) / (Math.pow(disp.length(), 2)))
                     
-                        if(this.v.length() > this.maxCrashVelocity) {
+                        if(this.v.length() > this.maxCrashVelocity && this instanceof Rocket) {
                             this.crashed = true; 
                         }
 
@@ -161,6 +165,16 @@ class DynamicEntity extends Entity{
 
             this.ctx.fillText(this.v.magnitude().toFixed(2), this.p.x + this.v.x, this.p.y + this.v.y)
         }
+
+        if(this.trace && this.traceVar >= this.traceVarMax) {
+            this.traceVar = 0;
+            pworld.add(new Tracer(this.ctx, this.p.x, this.p.y, 500 * this.traceVarMax, new Victor(0, 0), 0))
+        } else {
+            //(this.traceVar)
+            if(this.trace) {
+                this.traceVar += 1;
+            }
+        }
     }
 }
 
@@ -208,26 +222,29 @@ class Tracer extends Entity {
             return "delete"
         }
     }
+    render(world) {
+        let gradient = this.lc / this.l * 255; 
+        this.ctx.fillStyle = ` rgb(${gradient},${gradient},${gradient} )`;
+        drawCircleFilled(this.ctx, this.p.x, this.p.y, 5 + 1/ world.camera.zoom);
+
+    }
+}
+
+
+class Fuel extends Tracer {
+    constructor(ctx, x, y, l, v, dt) {
+       super(ctx, x, y, l, v, dt)
+    }
+    update() {
+        return super.update()
+    }
     render() {
         let gradient = this.lc / this.l * 130; 
         this.ctx.fillStyle = `rgb(254,${90 + gradient},${gradient / 5} )`;
         drawCircleFilled(this.ctx, this.p.x, this.p.y, 5);
     }
 }
-// function drawArrow(base, vec, myColor) {
-//     push()
-//     stroke(myColor);
-//     strokeWeight(3);
-//     fill(myColor);
-//     translate(base.x, base.y);
-//     line(0, 0, vec.x, vec.y);
-//     rotate(vec.heading());
-//     let arrowSize = 7;
-//     translate(vec.mag() - arrowSize, 0);
-//     triangle(0, arrowSize / 2, 0, -arrowSize / 2, arrowSize, 0);
-    
-//     pop()
-// }
+
 
 
 
@@ -246,6 +263,9 @@ class Rocket extends DynamicEntity {
     }
 
     render(pworld) {
+        if(this.currentFuel > this.fuelMaxJ) {
+            this.currentFuel = this.fuelMaxJ;
+        }
         this.boosterOffset = massToRad(this.m) * 2;
         this.ctx.save() 
 
@@ -306,6 +326,6 @@ class Rocket extends DynamicEntity {
         if(pworld.play == gameModes.rtPaused) {
             startingVelocity = f.clone().multiplyScalar(-5).add(rand);
         }
-        pworld.add(new Tracer(this.ctx, this.p.x - this.boosterOffset * Math.cos(this.angle * Math.PI / 180), this.p.y - this.boosterOffset * Math.sin(this.angle * Math.PI / 180), 50, startingVelocity , pworld.deltaT));
+        pworld.add(new Fuel(this.ctx, this.p.x - this.boosterOffset * Math.cos(this.angle * Math.PI / 180), this.p.y - this.boosterOffset * Math.sin(this.angle * Math.PI / 180), 50, startingVelocity , pworld.deltaT));
     }
 }

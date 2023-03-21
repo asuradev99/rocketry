@@ -77,6 +77,9 @@ class World {
         let deleteIndeces = [];
 
             this.entities.forEach(function (item, index) {
+                if(item.delete){
+                    deleteIndeces.push(index)
+                }
                 item.isSelected = false;
                 let mouseWorld = getMouseWorld(mousePos.x, mousePos.y);
                 if(uiState.mousedown && item.mouseIn(mouseWorld.x, mouseWorld.y) && this.selectedEntity != item && (item instanceof DynamicEntity || item instanceof Planet)) {
@@ -86,8 +89,8 @@ class World {
                 if((item instanceof Tracer || item instanceof Rocket)  || (this.play != gameModes.editor)) {
                     let status = item.update(this);
                     
-                
                if(status == "delete") {
+                    
                     //this.entities.splice(index, index)
                     deleteIndeces.push(index)
                 }
@@ -145,9 +148,8 @@ class World {
 
         if(this.selectedEntity instanceof Rocket) {
             this.testFolder.add(this.selectedEntity, 'angle');
+            this.testFolder.add(this.selectedEntity, 'fuelMaxJ');
         }
-
-        
 
         this.testFolder.open()
         this.selectedGui.show();
@@ -158,6 +160,14 @@ class World {
         this.entities.forEach(function (item, index) {
             if((item instanceof DynamicEntity || item instanceof Rocket)) {
                 item.showForces = !item.showForces;
+            }
+        }, this)
+    }
+
+    toggleTrace() {
+        this.entities.forEach(function (item, index) {
+            if((item instanceof DynamicEntity || item instanceof Rocket)) {
+                item.trace = !item.trace;
             }
         }, this)
     }

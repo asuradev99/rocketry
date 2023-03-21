@@ -8,11 +8,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>HTML 5 Boilerplate</title>
-  <link rel="stylesheet" href="./style.css">
 
 </head>
 
 <body id="body">
+
+    <canvas id="mainCanvas" width="100" height="100" 
+      style="position: absolute; left: 0; top: 0;"></canvas>
+    
+   
   <button type="button" id="stop" onmousedown="stopPressed()">Stop</button>
   <button type="button" id="play" onmousedown="playPressed()">Play</button>
   <button type="button" id="reset">Reset</button>
@@ -25,12 +29,14 @@
   <script src="./lib/victor.js"></script>
   <script src="./lib/dat.gui.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"></script>
-
   <script  type="text/javascript" src="./scripts/world.js"></script>
   <script  type="text/javascript" src="./scripts/entity.js"></script>
   <script  type="text/javascript" src="./scripts/camera.js"></script>
   <script  type="text/javascript" src="./scripts/main.js"></script>
+
   
+  <link rel="stylesheet" href="./style.css">
+
 </body>
 
 </html>
