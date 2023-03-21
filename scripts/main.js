@@ -176,6 +176,7 @@ window.addEventListener('keyup', function (event) {
          break;
    }
 })
+var isDynamic = {isDynamic: false}; 
 
 let setupGui = function (lworld) {
    if(gui) {
@@ -187,13 +188,20 @@ let setupGui = function (lworld) {
    scFolder.add(lworld, 'gravitationalConstant', 10);
    scFolder.add(lworld, 'deltaT', 0, 1)
 
+   
    pFolder = gui.addFolder("Add Planet");
    pFolder.add(lworld, 'newPlanetMass')
+   pFolder.add(isDynamic, 'isDynamic')
+
 
    var obj = {
       Add_Planet: function () {
          if (lworld.play == gameModes.editor) {
-            lworld.add(new Planet(ctx, lworld.newPlanetX, lworld.newPlanetY, lworld.newPlanetMass))
+            if(!isDynamic) {
+               lworld.add(new Planet(ctx, lworld.newPlanetX, lworld.newPlanetY, lworld.newPlanetMass))
+            } else {
+               lworld.add(new DynamicEntity(ctx, lworld.newPlanetX, lworld.newPlanetY, lworld.newPlanetMass))
+            }
          }
       }
    };
