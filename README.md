@@ -25,8 +25,10 @@ https://asuradev99.github.io/CP2-Project/
 | `gravitationalConstant`      | strength of the gravitational force between massive objects      |
 | `deltaT`   | Speed of the simulation (faster = less accurate)     |
 | `newPlanetMass`| Set the mass of the new planet|
+| `isDynamic`| If checked, the planet is dynamic and can accelerate based on it's attraction to other planets and dynamic entities.|
 | `Add_Planet` | Add a new planet (Only in Editor mode)|
 | `Camera x/y` | Camera x and y coordinates (only in Editor mode) |
 | `Toggle Follow Player` | Toggle whether the camera follows the player or can move around freely |
 | `Toggle Show Velocity` | Show the velocity vectors of moving objects |
 | `Toggle Show Forces` | Show the forces acting on objects with mass |
+| `Toggle Trace Positions` | If true, tracks the player's (and other moving entities') positions over time using markers. |
