@@ -137,7 +137,9 @@ window.addEventListener('keydown', function (event) {
          world.toggleVelocities()
 
       case "x":
-         world.selectedEntity.delete = true;
+         if(world.play == gameModes.editor) {
+            world.selectedEntity.delete = true;
+         }
 
    }
 }
