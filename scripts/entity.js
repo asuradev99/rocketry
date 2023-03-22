@@ -1,27 +1,4 @@
-// function newton(a, b) {
-    
-// }
-function drawCircle(ctx, x, y, r) {
-
-   // 
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, 2 * Math.PI);
-    ctx.stroke();
-}
-
-function drawCircleFilled(ctx, x, y, r) {
-
-    // 
-     ctx.beginPath();
-     ctx.arc(x, y, r, 0, 2 * Math.PI);
-     ctx.fill();
- }
- 
-
-function massToRad(m) {
-    return Math.sqrt(Math.abs(m))
-}
-
+//base class off of which all other game objects inherit from
 class Entity {
     constructor(ctx, x, y, _m) {
         this.ctx = ctx;
@@ -32,14 +9,14 @@ class Entity {
         this.delete = false;
     }
 
+    //template functions created to be overriden
     render() {
-        //pass
     }
 
     update() {
-        //pass
     }
 
+    //determines if the mouse is within the hitbox of the entity
     mouseIn(pworldmouseX, pworldmouseY) {
         if(this.p.distance(new Victor(pworldmouseX, pworldmouseY)) < massToRad(this.m)) {
             return true;
@@ -50,8 +27,9 @@ class Entity {
  
 }
 
-
+//Dynamic entities can experience forces and move around
 class DynamicEntity extends Entity{
+    
     constructor(ctx, x, y, m) {
         super(ctx, x, y, m);
         this.v = Victor(0,0);
@@ -65,6 +43,7 @@ class DynamicEntity extends Entity{
         this.traceVarMax = 5; 
     }
     
+    //update function - runs every frame, designed to update the internal state of the object
     update(pworld) {
         let collisionBuffer = new Victor(0, 0);
         if(pworld.play == gameModes.rtPlay) {
@@ -73,11 +52,12 @@ class DynamicEntity extends Entity{
                 this.traceVar = 0;
                 pworld.add(new Tracer(this.ctx, this.p.x, this.p.y, 500 * this.traceVarMax, new Victor(0, 0), 0))
             } else {
-                //(this.traceVar)
                 if(this.trace) {
                     this.traceVar += 1;
                 }
             }
+
+            //collision detection algorithm
             pworld.entities.forEach(entity => {
                 if((entity instanceof Planet || entity instanceof DynamicEntity) && entity != this) {
                     this.a.add(this.calculateAcceleration(entity, pworld));
@@ -97,53 +77,55 @@ class DynamicEntity extends Entity{
             });
         }
 
+        //Leapfrog integration technique
         let newv = this.v.clone().add(this.a.clone().multiplyScalar(pworld.deltaT));
 
         if(pworld.play == gameModes.rtPlay) {
             this.p.add(this.v.clone().add(newv).multiplyScalar(pworld.deltaT / 2));
-        
             this.p.add(collisionBuffer);
         }
         
         this.v = newv;
-       // if(!(this instanceof Rocket)) {
-       // }
         this.a = Victor(0,0);
 
     }
 
+    //calculate the gravitational acceleration between this object and another object, b
     calculateAcceleration(b, pworld) {
 
         const distance = this.p.distance(b.p);
 
-      //  console.log("hello")
         const disp = b.p.clone().subtract(this.p).normalize();
-        // Universal gravitational constant
         
         // Calculate the magnitude of the gravitational force
         const force = pworld.gravitationalConstant * (b.m / Math.pow(distance, 2));
         
         const acceleration = disp.multiplyScalar(force); 
         
-        //drawArrow(this.p, acceleration, 'blue');
         return acceleration;
     }
 
+
+    //TODO: use ternary operators
+    //render: designed to graphically display the object onto the canvas
     render(pworld) {
-
-       // console.log(pworld.entities);
-
         if(this.isSelected) {
             this.ctx.strokeStyle = '#fcbe03';
         } else {
             this.ctx.strokeStyle = '#000000';
         }
+
+        //draw main circle using utility functions
         this.ctx.fillStyle = '#ff0000';
+        this.ctx.lineWidth = 10; 
+
         drawCircle(this.ctx, this.p.x, this.p.y, massToRad(this.m))
         drawCircleFilled(this.ctx, this.p.x, this.p.y, massToRad(this.m))
         
         this.ctx.lineWidth = 5; 
         this.ctx.strokeStyle = '#0000ff';
+        
+        //draw extra stuff like property vectors 
         if(this.showForces) {
 
             pworld.entities.forEach(entity => {
@@ -175,27 +157,25 @@ class DynamicEntity extends Entity{
 
             this.ctx.fillText(this.v.magnitude().toFixed(2), this.p.x + this.v.x, this.p.y + this.v.y)
         }
-
-       
     }
 }
 
+//This kind of entity is static, but can exert gravitational force on dynamic entities. 
 class Planet extends Entity {
+
     constructor(ctx, x, y, m) {
         super(ctx, x, y, m);
         this.surfaceFriction = 1; 
     }
 
-
+    //render function
     render() {
-       // strokeWeight(4);
-        //stroke(255);
-        //fill(135, 135, 135)
         if(this.isSelected) {
             this.ctx.strokeStyle = '#fcbe03';
         } else {
             this.ctx.strokeStyle = '#5c5c5c';
         }
+
         drawCircle(this.ctx, this.p.x, this.p.y, massToRad(this.m));
         this.ctx.fillStyle = '#bfbfbf';
 
@@ -209,6 +189,7 @@ class Planet extends Entity {
     }
 }
 
+//Tracer: designed for particle effects and to track the position of the player
 class Tracer extends Entity {
     constructor(ctx, x, y, l, v, dt) {
         super(ctx, x, y);
@@ -217,6 +198,8 @@ class Tracer extends Entity {
         this.v = v; 
         this.dt = dt;
     }
+
+    //update function
     update() {
         this.p.add(this.v.clone().multiplyScalar(this.dt))
         this.lc += 1;
@@ -224,22 +207,28 @@ class Tracer extends Entity {
             return "delete"
         }
     }
+
+    //render function
     render(world) {
         let gradient = this.lc / this.l * 255; 
         this.ctx.fillStyle = ` rgb(${gradient},${gradient},${gradient} )`;
         drawCircleFilled(this.ctx, this.p.x, this.p.y, 5 + 1/ world.camera.zoom);
-
     }
 }
 
-
+//Fuel: a special kind of tracer to mimic particles of fuel coming out of the rocket
 class Fuel extends Tracer {
+
     constructor(ctx, x, y, l, v, dt) {
        super(ctx, x, y, l, v, dt)
     }
+
+    //update function
     update() {
         return super.update()
     }
+
+    //render function
     render() {
         let gradient = this.lc / this.l * 130; 
         this.ctx.fillStyle = `rgb(254,${90 + gradient},${gradient / 5} )`;
@@ -248,8 +237,7 @@ class Fuel extends Tracer {
 }
 
 
-
-
+//Rocket - this is the class the player belongs to, a dynamic entity that can be controlled by the user
 class Rocket extends DynamicEntity {
     constructor(ctx, x, y, m) {
         super(ctx, x, y, m);
@@ -258,12 +246,15 @@ class Rocket extends DynamicEntity {
         this.fuelVel = 0;
         this.angle = 90; 
         this.boosterOffset = 20;
+        this.boosterForce = 20000; 
     }
 
+    //change the angle of the rocket
     changeAngle(deltaAngle) {
         this.angle += deltaAngle;
     }
 
+    //render function
     render(pworld) {
         if(this.currentFuel > this.fuelMaxJ) {
             this.currentFuel = this.fuelMaxJ;
@@ -290,14 +281,18 @@ class Rocket extends DynamicEntity {
 
 
     }
+
+    //apply a force vector to the rocket
     applyForce(F) {
         this.a.add(F.divideScalar(this.m))
     }
 
+    //apply a booster force to the rocket
     applyBooster(M, pworld) {
-
         let mag = M;
         let fuelUsed = M * ( (this.fuelVel * pworld.deltaT) +  M  / (2 * this.m)  * Math.pow(pworld.deltaT, 2))
+
+        //estimate amount of fuel used in irregular amounts
         if(this.currentFuel >= fuelUsed) {
             this.currentFuel -= fuelUsed; 
             this.fuelVel += (M / this.m) * pworld.deltaT;
@@ -309,17 +304,23 @@ class Rocket extends DynamicEntity {
             this.fuelVel = 0;
         }
 
+        //calculate force due to the fuel used
         let f = new Victor(mag * Math.cos(this.angle * Math.PI / 180), mag * Math.sin(this.angle * Math.PI / 180));
         let fa = f.clone().divideScalar(this.m); 
 
-        this.ctx.beginPath(); // Start a new path
-        this.ctx.moveTo(this.p.x, this.p.y); // Move the pen to (30, 50)
-        this.ctx.lineTo(this.p.x + fa.x, this.p.y + fa.y); // Draw a line to (150, 100)
-        this.ctx.stroke(); // Render the path
-        
-        this.ctx.font = `10px Verdana`;
+        //render booster force: TODO: merge with other force functions
+        if(this.showForces) {
+            this.ctx.lineWidth = 5; 
+            this.ctx.strokeStyle = '#0000ff';
+            this.ctx.beginPath(); // Start a new path
+            this.ctx.moveTo(this.p.x, this.p.y); // Move the pen to (30, 50)
+            this.ctx.lineTo(this.p.x + fa.x, this.p.y + fa.y); // Draw a line to (150, 100)
+            this.ctx.stroke(); // Render the path
+            
+            this.ctx.font = `10px Verdana`;
 
-        this.ctx.fillText(f.magnitude().toFixed(2), this.p.x + fa.x, this.p.y + fa.y)
+            this.ctx.fillText(f.magnitude().toFixed(2), this.p.x + fa.x, this.p.y + fa.y)
+        }
 
         this.applyForce(f)
         let rand = new Victor((Math.random() * 2 - 1) * 30, (Math.random() * 2 - 1) * 30);
@@ -328,6 +329,8 @@ class Rocket extends DynamicEntity {
         if(pworld.play == gameModes.rtPaused) {
             startingVelocity = f.clone().multiplyScalar(-5).add(rand);
         }
+
+        //add Fuel particle
         pworld.add(new Fuel(this.ctx, this.p.x - this.boosterOffset * Math.cos(this.angle * Math.PI / 180), this.p.y - this.boosterOffset * Math.sin(this.angle * Math.PI / 180), 50, startingVelocity , pworld.deltaT));
     }
 }

@@ -1,58 +1,9 @@
-const gameModes = {
-    editor: "Editing", 
-    rtPlay: "Playing",
-    rtPaused: "Paused",
-}
-var disableGuiExcept = function(igui, except) {
-    igui.__controllers.forEach(function(setting, index){
-        if(!except.includes(setting.property)) {
-            setting.updateDisplay();
-            setting.domElement.style.pointerEvents = "none"
-            setting.domElement.style.opacity = .5;
-        }
-    })
-}
-
-
-var enableGui = function(igui) {
-    igui.__controllers.forEach(function(setting, index){
-            setting.updateDisplay();
-            setting.domElement.style.pointerEvents = ""
-            setting.domElement.style.opacity = 1;
-        
-    })
-}
-
-
-
-
-
-var copyInto = function(a, b) {
-     for(var property in b) {
-        if(Object.prototype.hasOwnProperty.call(b, property) && Object.prototype.hasOwnProperty.call(a, property)) {
-            if(property == "world" || property == "ctx") {
-                if(!a[property]) {
-                    console.log("found epxiec")
-
-                    a[property] = b[property];
-
-                }
-            } else {
-                if(property != "a" && property != "v" && property != "p") {
-                    a[property] = _.cloneDeep(b[property]);
-                } else {
-                    console.log(b[property])
-                    a[property] = Victor.fromObject(b[property])
-                }
-            }
-        }
-    }
-
-
-}
-
+//World implementation
+//main World class implementation
 class World {
     constructor(ctx) {
+
+        //main variables
         this.ctx = ctx;
         this.camera = new Camera(ctx, window.innerWidth, window.innerHeight);
         this.entities = [];
@@ -60,105 +11,102 @@ class World {
         this.gravitationalConstant = 100;
         this.ppm = 100;
         this.deltaT = 0.02;
-        //gui variables
+
+        //main GUI variables
         this.newPlanetX = 0;
         this.newPlanetY = 0;
         this.newPlanetMass = 10000;
-        this.cameraLockPlayer = false; 
+        this.cameraLockPlayer = false;
 
-        //gui variables
+        //selected GUI variables
         this.selectedEntity = null;
         this.selectedGui = null;
         this.testFolder = null;
     }
 
-
+    //update function - runs every animation frame
     update() {
         let deleteIndeces = [];
 
-            this.entities.forEach(function (item, index) {
-                if(item.delete){
-                    deleteIndeces.push(index)
-                }
-                item.isSelected = false;
-                let mouseWorld = getMouseWorld(mousePos.x, mousePos.y);
-                if(uiState.mousedown && item.mouseIn(mouseWorld.x, mouseWorld.y) && this.selectedEntity != item && (item instanceof DynamicEntity || item instanceof Planet)) {
-                    this.generateSelectedGui(item);
-                }
+        //for-loop that runs for each entity
+        this.entities.forEach(function (item, index) {
+            if (item.delete) {
+                deleteIndeces.push(index)
+            }
 
-                if((item instanceof Tracer || item instanceof Rocket)  || (this.play != gameModes.editor)) {
-                    let status = item.update(this);
-                    
-               if(status == "delete") {
-                    
-                    //this.entities.splice(index, index)
+            item.isSelected = false;
+            let mouseWorld = getMouseWorld(uiState.mousePos.x, uiState.mousePos.y);
+
+            if (uiState.mousedown && item.mouseIn(mouseWorld.x, mouseWorld.y) && this.selectedEntity != item && (item instanceof DynamicEntity || item instanceof Planet)) {
+                this.selectedEntity = item;
+                this.generateSelectedGui(item);
+            }
+
+            if ((item instanceof Tracer || item instanceof Rocket) || (this.play != gameModes.editor)) {
+                let status = item.update(this);
+                if (status == "delete") {
                     deleteIndeces.push(index)
                 }
             }
-            }, this)
-            if(this.selectedEntity) {
-                this.selectedEntity.isSelected = true;
-            }
-            // if(this.selectedEntity) {
-            //     this.selectedGui = new dat.GUI({name: 'MyGUI'});
-                
-            //     this.selectedGui = gui.addFolder("Test");
-            //     this.selectedGui.add(this.selectedEntity.p, 'x');
-            //     this.selectedGui.add(this.selectedEntity.p, 'y')
+        }, this)
 
-            // } 
-              ctx.fillStyle = "Red";
-              ctx.font      = "normal 16pt Arial";
+        if (this.selectedEntity) {
+            this.selectedEntity.isSelected = true;
+        }
 
-              ctx.fillText(deleteIndeces.toString(), 10, 26);
-             for(var i = deleteIndeces.length - 1; i >= 0; i--) {
-                this.entities.splice(deleteIndeces[i],1);
-             }
-        
+        //delete marked entities using a reversed iterator
+        for (var i = deleteIndeces.length - 1; i >= 0; i--) {
+            this.entities.splice(deleteIndeces[i], 1);
+        }
+
     }
+
+    //TODO: redunant; merge with other updateGui function
     updateGui() {
-        this.newPlanetX = this.camera.x; 
-        this.newPlanetY = this.camera.y; 
-        if(this.play != gameModes.editor && this.selectedEntity) {
+        this.newPlanetX = this.camera.x;
+        this.newPlanetY = this.camera.y;
+        if (this.play != gameModes.editor && this.selectedEntity) {
             disableGuiExcept(this.testFolder, ["angle"])
         }
     }
+
+    //add an entity to the world
     add(a) {
         this.entities.push(a)
     }
 
-
+    //generate a GUI based on the selected item's properties TODO: move this outside of world
     generateSelectedGui(item) {
-        if(this.selectedEntity) {
-            this.selectedEntity = item;
-            this.selectedGui.removeFolder(this.testFolder) 
+        if (this.selectedGui) {
+            this.selectedGui.removeFolder(this.testFolder)
 
         } else {
-            this.selectedEntity = item;
-            this.selectedGui = new dat.GUI({name: "myGui"});
+            this.selectedGui = new dat.GUI({ name: "myGui" });
             this.selectedGui.domElement.id = 'testgui';
         }
 
-        this.testFolder = this.selectedGui.addFolder("Test");
+        this.testFolder = this.selectedGui.addFolder("Properties");
         var test = this.testFolder.add(this.selectedEntity, 'name')
         this.testFolder.add(this.selectedEntity.p, 'x');
         this.testFolder.add(this.selectedEntity.p, 'y')
         this.testFolder.add(this.selectedEntity, 'm');
-       //this.selectedGui.__folders["Test"].__controllers[0].domElement.hidden = true
+        //this.selectedGui.__folders["Test"].__controllers[0].domElement.hidden = true
 
-        if(this.selectedEntity instanceof Rocket) {
+        if (this.selectedEntity instanceof Rocket) {
             this.testFolder.add(this.selectedEntity, 'angle');
             this.testFolder.add(this.selectedEntity, 'fuelMaxJ');
+            this.testFolder.add(this.selectedEntity, 'boosterForce');
         }
 
         this.testFolder.open()
         this.selectedGui.show();
         console.log(this.selectedEntity.p.x)
     }
-    
+
+    //Toggle functions for force, velocity, and trace visualizations
     toggleForces() {
         this.entities.forEach(function (item, index) {
-            if((item instanceof DynamicEntity || item instanceof Rocket)) {
+            if ((item instanceof DynamicEntity || item instanceof Rocket)) {
                 item.showForces = !item.showForces;
             }
         }, this)
@@ -166,7 +114,7 @@ class World {
 
     toggleTrace() {
         this.entities.forEach(function (item, index) {
-            if((item instanceof DynamicEntity || item instanceof Rocket)) {
+            if ((item instanceof DynamicEntity || item instanceof Rocket)) {
                 item.trace = !item.trace;
             }
         }, this)
@@ -174,108 +122,24 @@ class World {
 
     toggleVelocities() {
         this.entities.forEach(function (item, index) {
-            if((item instanceof DynamicEntity || item instanceof Rocket)) {
+            if ((item instanceof DynamicEntity || item instanceof Rocket)) {
                 item.showVelocity = !item.showVelocity;
             }
         }, this)
     }
 
 
+    //render all the elements in the world
     render() {
-        //
         this.entities.forEach(function (item, index) {
             item.render(this);
         }, this)
     }
+
+    //reset the world TODO: delete
     reset() {
         this.play = gameModes.editor;
         this.entities = [];
     }
 
-    saveClone() {
-        let newWorld = new World(this.ctx);
-        copyInto(newWorld.camera, this.camera);
-        console.log("newworld camera" + newWorld.camera);
-        this.entities.forEach(function(item) {
-            var newEntity; 
-            if(item.surfaceFriction) {
-                newEntity = new Planet(); 
-                console.log("Found a planet")
-            } else if(item.fuelMaxJ) {
-                newEntity = new Rocket();
-                console.log("Found a rocket")
-
-            } else {
-                newEntity = new DynamicEntity(); 
-                console.log("Found a dyanmic entity")
-
-            }
-            copyInto(newEntity, item)
-
-            newWorld.entities.push(newEntity)
-        });
-
-        newWorld.play = gameModes.editor;
-        newWorld.gravitationalConstant = this.gravitationalConstant;
-        newWorld.ppm = this.ppm;
-        newWorld.deltaT = this.deltaT;
-        //gui variables
-        newWorld.newPlanetX = 0;
-        newWorld.newPlanetY = 0;
-        newWorld.newPlanetMass = 10000;
-        newWorld.cameraLockPlayer = false; 
-
-        //gui variables
-        newWorld.selectedEntity = this.selectedEntity;
-        newWorld.selectedGui = this.selectedGui;
-        newWorld.testFolder = this.testFolder;
-
-        return newWorld;
-    }
-    
-    generateSaveFile() {
-
-    }
-
-}
-
-var saveClone = function(oworld, ctx) {
-    let newWorld = new World(ctx);
-        copyInto(newWorld.camera, oworld.camera);
-     //   console.log("newworld camera" + newWorld.camera);
-        oworld.entities.forEach(function(item) {
-            var newEntity; 
-            if(item.surfaceFriction) {
-                newEntity = new Planet(ctx); 
-                console.log("Found a planet")
-            } else if(item.fuelMaxJ) {
-                newEntity = new Rocket(ctx);
-                console.log("Found a rocket")
-
-            } else {
-                newEntity = new DynamicEntity(ctx); 
-                console.log("Found a dyanmic entity")
-
-            }
-            copyInto(newEntity, item)
-
-            newWorld.entities.push(newEntity)
-        });
-
-        newWorld.play = gameModes.editor;
-        newWorld.gravitationalConstant = oworld.gravitationalConstant;
-        newWorld.ppm = oworld.ppm;
-        newWorld.deltaT = oworld.deltaT;
-        //gui variables
-        newWorld.newPlanetX = 0;
-        newWorld.newPlanetY = 0;
-        newWorld.newPlanetMass = 10000;
-        newWorld.cameraLockPlayer = false; 
-
-        //gui variables
-        newWorld.selectedEntity = null; //oworld.selectedEntity;
-        newWorld.selectedGui = null; //oworld.selectedGui;
-        newWorld.testFolder = null; //oworld.testFolder;
-
-        return newWorld;
 }
