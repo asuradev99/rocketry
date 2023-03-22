@@ -41,3 +41,11 @@ https://asuradev99.github.io/rocketry/
 - In the Editor mode, click on an object to edit its properties. 
 - In any GUI, to quickly increase or decrease a numerical property, click on the textbox with the number in it and drag the cursor up/down to increase/decrease the value. 
 - In Play mode, you will notice that you can still accelerate and rotate the player while the game is paused. This mechanism is deliberate, and is designed to allow you to make precise maneuvers. The `f` control is very useful while this mechanic is being used, as you can see how accelerating the rocket in a certain direction affects its velocity without the simulation progressing. 
+
+
+## Year Two Concepts Used
+- Input / Output for loading and saving configurations
+- The List datastructure is used extensively (data structure) 
+- Object-oriented features of javascript used to organize the various kinds of entities found in-game
+- Overriding was used several times
+- Enhanced For-loop used to iterate lists

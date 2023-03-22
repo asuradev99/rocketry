@@ -502,6 +502,7 @@ function animate() {
 
    //draw the grid
    drawGrid();
+   updateGui() 
 
    //update camera position to player position if locked
    if (world.cameraLockPlayer) {
@@ -541,7 +542,6 @@ function animate() {
    world.camera.unapply();
 
    //update UI elements
-   updateGui() 
    renderMainUI()
 
    //handle player crash scenario
