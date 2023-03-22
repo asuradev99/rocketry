@@ -260,6 +260,7 @@ function readFile(input) {
    fileReader.onload = function () {
       var jsonWorld = fileReader.result;
       backupWorld = saveClone(JSON.parse(jsonWorld), ctx)
+    
       setup();
 
       enableGui(pFolder);
@@ -300,7 +301,8 @@ function playGame() {
 
    //save a clone of the editor world so that the editor contents are saved
    if (world.play == gameModes.editor) {
-      backupWorld = saveClone(world)
+      backupWorld = saveClone(world, ctx)
+      console.log(backupWorld)
       if (world.selectedGui) {
          world.selectedGui.destroy();
          world.selectedGui = false;
@@ -331,7 +333,10 @@ function setup() {
 
    //already a backup world, meaning the game was in editor mode before
    if (backupWorld) {
-      world = saveClone(backupWorld);
+      world = saveClone(backupWorld, ctx);
+      world.camera.x = 0; 
+      world.camera.y = 0;
+      console.log(world.camera.x)
       player = world.entities[0];
       uiState.mousePos = 0;
 
@@ -393,6 +398,7 @@ function drawGrid() {
 
 //function to update releevant GUI elements each frame
 function updateGui() {
+
    //disable maniulating certain GUI properties while the game is in Play mode
    if (world.play != gameModes.editor) {
       disableGuiExcept(pFolder, []);
@@ -412,6 +418,7 @@ function updateGui() {
    //render preview of planet to be placed
    if (!pFolder.closed && world.play == gameModes.editor) {
 
+      console.log(world)
       world.ctx.strokeStyle = '#5c5c5c';
       ctx.globalAlpha = 0.5;
 

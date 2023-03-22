@@ -65,7 +65,6 @@ var copyInto = function (a, b) {
                 if (property != "a" && property != "v" && property != "p") {
                     a[property] = _.cloneDeep(b[property]);
                 } else {
-                    console.log(b[property])
                     a[property] = Victor.fromObject(b[property])
                 }
             }
@@ -94,6 +93,7 @@ var saveClone = function (oworld, ctx) {
         newWorld.entities.push(newEntity)
     });
 
+    newWorld.ctx = ctx;
     newWorld.play = gameModes.editor;
     newWorld.gravitationalConstant = oworld.gravitationalConstant;
     newWorld.ppm = oworld.ppm;

@@ -31,7 +31,7 @@ class Camera {
     //zoom in / zoom out
     Zoom(mouseX, mouseY, dir) {
       this.zoomTarget *= Math.pow(this.zoomFactor, dir);
-      this.zoomTarget = Math.max(Math.min(this.zoomTarget, 8), 0.125);
+      this.zoomTarget = Math.max(Math.min(this.zoomTarget, 8), 0);
       
     }
   

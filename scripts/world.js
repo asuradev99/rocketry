@@ -76,7 +76,8 @@ class World {
     }
 
     //generate a GUI based on the selected item's properties TODO: move this outside of world
-    generateSelectedGui(item) {
+    generateSelectedGui() {
+        console.log(this.selectedEntity)
         if (this.selectedGui) {
             this.selectedGui.removeFolder(this.testFolder)
 
@@ -85,8 +86,9 @@ class World {
             this.selectedGui.domElement.id = 'testgui';
         }
 
+
         this.testFolder = this.selectedGui.addFolder("Properties");
-        var test = this.testFolder.add(this.selectedEntity, 'name')
+        this.testFolder.add(this.selectedEntity, 'name')
         this.testFolder.add(this.selectedEntity.p, 'x');
         this.testFolder.add(this.selectedEntity.p, 'y')
         this.testFolder.add(this.selectedEntity, 'm');
