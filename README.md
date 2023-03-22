@@ -1,7 +1,7 @@
 # Rocketry
 ![Logo](res/TitleImage.png "Logo")
 
-https://asuradev99.github.io/CP2-Project/
+https://asuradev99.github.io/rocketry/
 
 - A simple and light two-dimensional gravitation simulator featuring a controllable rocket and a planet editor
 - Specifically designed to run on Chromebooks and other computationally-challenged devices
