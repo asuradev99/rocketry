@@ -5,7 +5,7 @@ https://asuradev99.github.io/rocketry/
 
 - A simple and light two-dimensional gravitation simulator featuring a controllable rocket and a planet editor
 - Specifically designed to run on Chromebooks and other computationally-challenged devices
-- Load and save configurations to create and share levels and configurations on the fly
+- Load and save configurations to create and share simulations on the fly
 
 ## Controls
 
