@@ -2,7 +2,7 @@
 class Entity {
     constructor(ctx, x, y, _m) {
         this.ctx = ctx;
-        this.p = Victor(x, y);
+        this.p = Victor(x, y); //Victor is a Javascript library that provides Vector operations
         this.m = _m;
         this.name = ""
         this.isSelected = false;
@@ -39,6 +39,8 @@ class DynamicEntity extends Entity{
         this.showForces = false;
         this.showVelocity = false;
         this.trace = false;
+
+        //defines the time interval between creating Tracer objects
         this.traceVar = 0;
         this.traceVarMax = 5; 
     }
@@ -178,7 +180,6 @@ class Planet extends Entity {
 
         drawCircle(this.ctx, this.p.x, this.p.y, massToRad(this.m));
         this.ctx.fillStyle = '#bfbfbf';
-
         drawCircleFilled(this.ctx, this.p.x, this.p.y, massToRad(this.m));
 
         this.ctx.fillStyle = '#000000';
@@ -191,12 +192,11 @@ class Planet extends Entity {
 
 //Tracer: designed for particle effects and to track the position of the player
 class Tracer extends Entity {
-    constructor(ctx, x, y, l, v, dt) {
+    constructor(ctx, x, y, l, v) {
         super(ctx, x, y);
         this.l = l;
         this.lc = 0;
         this.v = v; 
-        this.dt = dt;
     }
 
     //update function
@@ -220,7 +220,8 @@ class Tracer extends Entity {
 class Fuel extends Tracer {
 
     constructor(ctx, x, y, l, v, dt) {
-       super(ctx, x, y, l, v, dt)
+       super(ctx, x, y, l, v);
+       this.dt = dt; 
     }
 
     //update function
