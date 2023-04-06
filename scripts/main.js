@@ -464,6 +464,7 @@ function renderMainUI() {
 
    updateFPS(); 
 
+   ctx.fillStyle = "#000000"
    ctx.font = `20px Verdana`;
    ctx.fillText("FPS: " + fps, 40, canvas.height - 10);
 
