@@ -98,19 +98,16 @@ window.addEventListener('keydown', function (event) {
          if (world.play != gameModes.editor) {
             uiState.rocketDir = keyDir.rightDown;
          }
-         //player.changeAngle(10)
          break;
       case "ArrowLeft":
          if (world.play != gameModes.editor) {
             uiState.rocketDir = keyDir.leftUp;
          }
-         // player.changeAngle(-10)
          break;
       case "ArrowUp":
          if (world.play != gameModes.editor) {
             uiState.accelDir = keyDir.leftUp;
          }
-         //player.changeAngle(10)
          break;
 
       case "c":
@@ -126,7 +123,6 @@ window.addEventListener('keydown', function (event) {
          if (world.play == gameModes.editor) {
             world.selectedEntity.delete = true;
          }
-
    }
 }
 

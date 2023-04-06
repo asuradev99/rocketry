@@ -62,16 +62,27 @@ class DynamicEntity extends Entity{
             //collision detection algorithm
             pworld.entities.forEach(entity => {
                 if((entity instanceof Planet || entity instanceof DynamicEntity) && entity != this) {
+                    //add the acceleration vector of the current entity in the loop iteration to this entity's acceleration
                     this.a.add(this.calculateAcceleration(entity, pworld));
+
+                    //check that handles collisions between entities
                     if(this.p.distance(entity.p) < (massToRad(this.m) + massToRad(entity.m))) {
-                        collisionBuffer.add(entity.p.clone().subtract(this.p).normalize().multiplyScalar( this.p.distance(entity.p) - (massToRad(this.m) + massToRad(entity.m)) ))
+
+                        //buffer vector that corrects the position of this entity to make it 
+                        //appear outside of the entity it is colliding with
+                        collisionBuffer.add(entity.p.clone().subtract(this.p).normalize()
+                        .multiplyScalar( this.p.distance(entity.p) - (massToRad(this.m) + massToRad(entity.m)) ))
                         let disp = entity.p.clone().subtract(this.p).normalize();
+
+                        //removes the component of the entity's velocity that is normal to the collision 
+                        //(not physically accurate, but accuracy in this regard is not a part of the simulation's goals)
                         let normalComponent = disp.clone().multiplyScalar(this.v.clone().dot(disp) / (Math.pow(disp.length(), 2)))
                     
                         if(this.v.length() > this.maxCrashVelocity && this instanceof Rocket) {
                             this.crashed = true; 
                         }
 
+                        //update the velocity and apply a slight frictional factor to prevent the entity from speeding up
                         this.v.subtract(normalComponent);
                         this.v.multiplyScalar(0.99);
                     }
@@ -88,6 +99,8 @@ class DynamicEntity extends Entity{
         }
         
         this.v = newv;
+
+        //reset acceleration vector
         this.a = Victor(0,0);
 
     }
@@ -162,7 +175,8 @@ class DynamicEntity extends Entity{
     }
 }
 
-//This kind of entity is static, but can exert gravitational force on dynamic entities. 
+//This kind of entity is static, but can exert gravitational 
+//force on dynamic entities. 
 class Planet extends Entity {
 
     constructor(ctx, x, y, m) {
@@ -190,7 +204,8 @@ class Planet extends Entity {
     }
 }
 
-//Tracer: designed for particle effects and to track the position of the player
+//Tracer: designed for particle effects and to track the position 
+// of the player
 class Tracer extends Entity {
     constructor(ctx, x, y, l, v) {
         super(ctx, x, y);
@@ -216,7 +231,8 @@ class Tracer extends Entity {
     }
 }
 
-//Fuel: a special kind of tracer to mimic particles of fuel coming out of the rocket
+//Fuel: a special kind of tracer to mimic particles of 
+//fuel coming out of the rocket
 class Fuel extends Tracer {
 
     constructor(ctx, x, y, l, v, dt) {
@@ -238,7 +254,8 @@ class Fuel extends Tracer {
 }
 
 
-//Rocket - this is the class the player belongs to, a dynamic entity that can be controlled by the user
+//Rocket - this is the class the player belongs to, 
+//a dynamic entity that can be controlled by the player2
 class Rocket extends DynamicEntity {
     constructor(ctx, x, y, m) {
         super(ctx, x, y, m);

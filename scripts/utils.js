@@ -53,7 +53,8 @@ var enableGui = function (igui) {
     })
 }
 
-//Hack function that creates a deepcopy of an object given that the type of the destination object is already known (This is why javascript sucks), copies b into a
+//Hack function that creates a deepcopy of an object given that the type of the 
+//destination object is already known, copies b into a
 var copyInto = function (a, b) {
     for (var property in b) {
         if (Object.prototype.hasOwnProperty.call(b, property) && Object.prototype.hasOwnProperty.call(a, property)) {
@@ -78,6 +79,8 @@ var copyInto = function (a, b) {
 //utility function that deepcopies the current world
 var saveClone = function (oworld, ctx) {
     let newWorld = new World(ctx);
+    //custom deepcopy function that copies literal objects 
+    //without references
     copyInto(newWorld.camera, oworld.camera);
 
     oworld.entities.forEach(function (item) {
