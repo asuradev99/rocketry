@@ -447,9 +447,26 @@ function download(data, filename, type) {
    }
 }
 
+//handles FPS counter
+const times = [];
+let fps;
 
+function updateFPS() {
+   const now = performance.now();
+   while (times.length > 0 && times[0] <= now - 1000) {
+     times.shift();
+   }
+   times.push(now);
+   fps = times.length;
+}
 //renders the basic elements of the UI system
 function renderMainUI() {
+
+   updateFPS(); 
+
+   ctx.font = `20px Verdana`;
+   ctx.fillText("FPS: " + fps, 40, canvas.height - 10);
+
    if (!world.cameraLockPlayer) {
 
       ctx.fillStyle = "#000000"
