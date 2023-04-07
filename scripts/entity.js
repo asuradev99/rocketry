@@ -51,7 +51,7 @@ class DynamicEntity extends Entity{
         if(pworld.play == gameModes.rtPlay) {
 
             if(this.trace && this.traceVar >= this.traceVarMax) {
-                this.traceVar = 0;
+                this.traceVar = 0; 
                 pworld.add(new Tracer(this.ctx, this.p.x, this.p.y, 500 * this.traceVarMax, new Victor(0, 0), 0))
             } else {
                 if(this.trace) {
@@ -216,7 +216,6 @@ class Tracer extends Entity {
 
     //update function
     update() {
-        this.p.add(this.v.clone().multiplyScalar(this.dt))
         this.lc += 1;
         if(this.lc == this.l) {
             return "delete"
@@ -242,6 +241,8 @@ class Fuel extends Tracer {
 
     //update function
     update() {
+        this.p.add(this.v.clone().multiplyScalar(this.dt))
+
         return super.update()
     }
 
